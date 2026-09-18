@@ -45,10 +45,10 @@ const authenticate = (req, res, next) => {
     const decoded = AuthService.verifyToken(token);
     
     // Get user from storage
-    const user = AuthService.getUserById(decoded.userId);
+    const user = AuthService.getUserById(decoded.id);
     if (!user) {
       logger.warn('Valid token but user not found', {
-        userId: decoded.userId,
+        userId: decoded.id,
         path: req.path
       });
       return res.status(401).json({

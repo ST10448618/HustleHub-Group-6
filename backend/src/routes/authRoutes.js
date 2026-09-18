@@ -1,11 +1,8 @@
 const express = require('express');
 const router = express.Router();
 const AuthController = require('../controllers/authController');
-const { 
-  validateRegister, 
-  validateLogin, 
-  handleValidationErrors 
-} = require('../validation/authValidation');
+const { validateRegister, validateLogin } = require('../validation/authValidation');
+const { handleValidationErrors } = require('../middleware/validate');
 const { authenticate } = require('../middleware/auth');
 
 // Public routes

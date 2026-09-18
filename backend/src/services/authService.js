@@ -58,11 +58,13 @@ class AuthService {
     }
     
     // Generate JWT
+    // Payload is intentionally minimal: only what's needed to identify
+    // the authenticated user and check their role. Email and other
+    // personal information are never placed inside the token.
     const token = jwt.sign(
-      { 
-        userId: user.id, 
-        email: user.email, 
-        role: user.role 
+      {
+        id: user.id,
+        role: user.role
       },
       config.jwtSecret,
       { expiresIn: config.jwtExpire }

@@ -1,10 +1,33 @@
 const logger = require('../utils/logger');
 
+// Fields that must never appear in logs, even internally.
+const SENSITIVE_BODY_FIELDS = ['password', 'passwordHash', 'confirmPassword', 'token'];
+
+/**
+ * Returns a shallow copy of a request body with sensitive fields
+ * replaced by a placeholder, so error logs never contain plaintext
+ * passwords, tokens, or hashes.
+ */
+function redactBody(body) {
+  if (!body || typeof body !== 'object') {
+    return body;
+  }
+
+  const redacted = { ...body };
+  SENSITIVE_BODY_FIELDS.forEach((field) => {
+    if (field in redacted) {
+      redacted[field] = '[REDACTED]';
+    }
+  });
+
+  return redacted;
+}
+
 /**
  * Global error handler middleware
  * 
  * This middleware:
- * 1. Logs errors with appropriate details
+ * 1. Logs errors with appropriate details (with sensitive fields redacted)
  * 2. Sends safe error responses to clients
  * 3. Never exposes stack traces or internal details in production
  */
@@ -17,7 +40,7 @@ const errorHandler = (err, req, res, next) => {
     method: req.method,
     ip: req.ip,
     userId: req.user?.id,
-    body: req.body
+    body: redactBody(req.body)
   });
   
   // Default error response
