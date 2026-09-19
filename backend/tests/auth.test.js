@@ -1,12 +1,19 @@
 // backend/tests/auth.test.js
 const request = require('supertest');
 const app = require('../src/app');
-const User = require('../src/models/User');
+const { connectTestDB, clearTestDB, closeTestDB } = require('./setup');
 
 describe('Authentication API', () => {
-    // Clean up before each test
-    beforeEach(() => {
-        User.deleteAll();
+    beforeAll(async () => {
+        await connectTestDB();
+    });
+
+    afterEach(async () => {
+        await clearTestDB();
+    });
+
+    afterAll(async () => {
+        await closeTestDB();
     });
 
     describe('POST /api/v1/auth/register', () => {

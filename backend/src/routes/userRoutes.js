@@ -12,15 +12,19 @@ router.get(
   '/admin/users',
   authenticate,
   authorize('ADMIN'),
-  (req, res) => {
-    const users = User.findAll().map(u => u.toSafeObject());
-    
-    logger.info('Admin viewed all users', { userId: req.user.id });
-    
-    res.status(200).json({
-      success: true,
-      data: users
-    });
+  async (req, res, next) => {
+    try {
+      const users = await User.findAllUsers();
+
+      logger.info('Admin viewed all users', { userId: req.user.id });
+
+      res.status(200).json({
+        success: true,
+        data: users.map((u) => u.toSafeObject())
+      });
+    } catch (error) {
+      next(error);
+    }
   }
 );
 

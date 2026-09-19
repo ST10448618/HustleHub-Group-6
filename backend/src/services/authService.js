@@ -10,53 +10,53 @@ class AuthService {
    */
   static async register(userData) {
     const { name, email, password } = userData;
-    
+
     // Check if user already exists
-    const existingUser = User.findByEmail(email);
+    const existingUser = await User.findByEmail(email);
     if (existingUser) {
       logger.warn('Registration attempt with existing email', { email });
       throw new Error('Email already registered');
     }
-    
+
     // Hash password
     const passwordHash = await bcrypt.hash(password, config.bcryptRounds);
-    
+
     // Create user (default role: CLIENT)
     // Admin accounts must be created through a controlled mechanism
-    const user = User.create({
+    const user = await User.create({
       name,
       email,
       passwordHash,
       role: 'CLIENT' // Default role, admin can be promoted separately
     });
-    
-    logger.info('User registered successfully', { 
-      userId: user.id, 
+
+    logger.info('User registered successfully', {
+      userId: user.id,
       email: user.email,
-      role: user.role 
+      role: user.role
     });
-    
+
     return user.toSafeObject();
   }
-  
+
   /**
    * Login user and generate JWT
    */
   static async login(email, password) {
     // Find user by email
-    const user = User.findByEmail(email);
+    const user = await User.findByEmail(email);
     if (!user) {
       logger.warn('Login attempt with non-existent email', { email });
       throw new Error('Invalid email or password');
     }
-    
+
     // Verify password
     const isPasswordValid = await bcrypt.compare(password, user.passwordHash);
     if (!isPasswordValid) {
       logger.warn('Login attempt with invalid password', { email });
       throw new Error('Invalid email or password');
     }
-    
+
     // Generate JWT
     // Payload is intentionally minimal: only what's needed to identify
     // the authenticated user and check their role. Email and other
@@ -69,19 +69,19 @@ class AuthService {
       config.jwtSecret,
       { expiresIn: config.jwtExpire }
     );
-    
-    logger.info('User logged in successfully', { 
-      userId: user.id, 
+
+    logger.info('User logged in successfully', {
+      userId: user.id,
       email: user.email,
-      role: user.role 
+      role: user.role
     });
-    
+
     return {
       token,
       user: user.toSafeObject()
     };
   }
-  
+
   /**
    * Verify JWT token
    */
@@ -99,12 +99,12 @@ class AuthService {
       throw error;
     }
   }
-  
+
   /**
    * Get user by ID (used by middleware)
    */
-  static getUserById(id) {
-    const user = User.findById(id);
+  static async getUserById(id) {
+    const user = await User.findByIdSafe(id);
     if (!user) return null;
     return user.toSafeObject();
   }

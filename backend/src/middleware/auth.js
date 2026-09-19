@@ -10,7 +10,7 @@ const logger = require('../utils/logger');
  * 3. Attaches authenticated user to req.user
  * 4. Handles missing/invalid/expired tokens gracefully
  */
-const authenticate = (req, res, next) => {
+const authenticate = async (req, res, next) => {
   try {
     // Get token from Authorization header
     const authHeader = req.headers.authorization;
@@ -44,8 +44,8 @@ const authenticate = (req, res, next) => {
     // Verify token
     const decoded = AuthService.verifyToken(token);
     
-    // Get user from storage
-    const user = AuthService.getUserById(decoded.id);
+    // Get user from the database
+    const user = await AuthService.getUserById(decoded.id);
     if (!user) {
       logger.warn('Valid token but user not found', {
         userId: decoded.id,

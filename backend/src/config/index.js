@@ -23,6 +23,16 @@ function validateEnv() {
     errors.push('PORT must be a valid number if provided in .env.');
   }
 
+  // MONGODB_URI is required for the real running app, but not for
+  // automated tests: tests use an isolated in-memory database instead
+  // (introduced in Phase B3) and must never depend on a real Atlas
+  // connection to run.
+  if (process.env.NODE_ENV !== 'test' && !process.env.MONGODB_URI) {
+    errors.push(
+      'MONGODB_URI is missing. Set your MongoDB Atlas connection string in .env.'
+    );
+  }
+
   if (errors.length > 0) {
     // eslint-disable-next-line no-console
     console.error('FATAL: Invalid environment configuration:');
@@ -53,9 +63,6 @@ module.exports = {
   // CORS
   clientOrigin: process.env.CLIENT_ORIGIN || 'http://localhost:3000',
 
-  // Temporary storage (Part 1/2 transition - will be replaced by MongoDB)
-  tempStorage: {
-    users: [],
-    nextId: 1
-  }
+  // Database
+  mongoUri: process.env.MONGODB_URI
 };

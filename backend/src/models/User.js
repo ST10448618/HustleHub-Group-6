@@ -1,55 +1,96 @@
-const config = require('../config');
+const mongoose = require('mongoose');
 
 /**
- * Temporary in-memory User model for Part 1
- * Will be replaced by Mongoose schema in Part 2
+ * User schema
+ *
+ * Replaces the temporary in-memory User storage used in Part 1 with a
+ * real, persistent MongoDB collection via Mongoose.
+ *
+ * Mongoose automatically provides:
+ *  - _id            (the real primary key, an ObjectId)
+ *  - id             (a virtual getter that returns _id as a string -
+ *                    this is why user.id continues to work unchanged
+ *                    everywhere in the codebase after this migration)
+ *  - createdAt/updatedAt (via the timestamps option below)
  */
-class User {
-  constructor({ name, email, passwordHash, role = 'CLIENT' }) {
-    this.id = config.tempStorage.nextId++;
-    this.name = name;
-    this.email = email.toLowerCase().trim();
-    this.passwordHash = passwordHash;
-    this.role = role;
-    this.createdAt = new Date();
-    this.updatedAt = new Date();
+const userSchema = new mongoose.Schema(
+  {
+    name: {
+      type: String,
+      required: [true, 'Name is required'],
+      trim: true
+    },
+    email: {
+      type: String,
+      required: [true, 'Email is required'],
+      unique: true,
+      lowercase: true,
+      trim: true
+    },
+    passwordHash: {
+      type: String,
+      required: true
+    },
+    role: {
+      type: String,
+      enum: ['CLIENT', 'FREELANCER', 'ADMIN'],
+      default: 'CLIENT'
+    }
+  },
+  {
+    timestamps: true
   }
+);
 
-  static create(userData) {
-    const user = new User(userData);
-    config.tempStorage.users.push(user);
-    return user;
+/**
+ * Find a user by email, normalising the same way registration/login do.
+ */
+userSchema.statics.findByEmail = function findByEmail(email) {
+  return this.findOne({ email: email.toLowerCase().trim() });
+};
+
+/**
+ * Find a user by id, safely. Mongoose's built-in findById throws a
+ * CastError for a string that isn't a valid ObjectId (e.g. a token
+ * left over from before this migration, or a tampered value). We
+ * treat "not a valid id" the same as "not found" rather than letting
+ * that turn into an unexpected 500 error.
+ */
+userSchema.statics.findByIdSafe = function findByIdSafe(id) {
+  if (!mongoose.Types.ObjectId.isValid(id)) {
+    return Promise.resolve(null);
   }
+  return this.findOne({ _id: id });
+};
 
-  static findByEmail(email) {
-    return config.tempStorage.users.find(
-      u => u.email === email.toLowerCase().trim()
-    );
-  }
+/**
+ * Returns every user. Used by the admin "list users" endpoint.
+ */
+userSchema.statics.findAllUsers = function findAllUsers() {
+  return this.find({});
+};
 
-  static findById(id) {
-    return config.tempStorage.users.find(u => u.id === id);
-  }
+/**
+ * Deletes every user. Used only by the automated test suite to reset
+ * state between tests.
+ */
+userSchema.statics.deleteAllUsers = function deleteAllUsers() {
+  return this.deleteMany({});
+};
 
-  static findAll() {
-    return [...config.tempStorage.users];
-  }
+/**
+ * Returns a plain object safe to send to the client: never includes
+ * passwordHash, and exposes only the fields the frontend needs.
+ */
+userSchema.methods.toSafeObject = function toSafeObject() {
+  return {
+    id: this.id,
+    name: this.name,
+    email: this.email,
+    role: this.role,
+    createdAt: this.createdAt,
+    updatedAt: this.updatedAt
+  };
+};
 
-  static deleteAll() {
-    config.tempStorage.users = [];
-    config.tempStorage.nextId = 1;
-  }
-
-  toSafeObject() {
-    return {
-      id: this.id,
-      name: this.name,
-      email: this.email,
-      role: this.role,
-      createdAt: this.createdAt,
-      updatedAt: this.updatedAt
-    };
-  }
-}
-
-module.exports = User;
+module.exports = mongoose.model('User', userSchema);

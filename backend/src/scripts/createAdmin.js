@@ -1,6 +1,7 @@
 const bcrypt = require('bcrypt');
 const config = require('../config');
 const User = require('../models/User');
+const { connectDB, disconnectDB } = require('../config/database');
 
 /**
  * Controlled admin creation script.
@@ -12,12 +13,10 @@ const User = require('../models/User');
  * (POST /api/v1/auth/register) can never create an ADMIN account; this
  * script is the only deliberate way to create one.
  *
- * NOTE: while user storage is in-memory (Part 1/2 transition), this
- * script runs in its own process and its result does not persist into
- * a separately-running "npm run dev" server. For local testing right
- * now, use SEED_ADMIN_ON_BOOT=true in .env instead (see server.js).
- * Once MongoDB is introduced, this script will create a real, persistent
- * admin account that the running server can authenticate.
+ * As of Phase B3, this creates a real, persistent admin user in your
+ * MongoDB Atlas database - it connects to the same database your
+ * running server uses, so the admin account it creates is immediately
+ * usable for login against "npm run dev".
  */
 async function createAdmin() {
   const name = process.env.ADMIN_NAME;
@@ -32,16 +31,19 @@ async function createAdmin() {
     process.exit(1);
   }
 
-  const existing = User.findByEmail(email);
+  await connectDB();
+
+  const existing = await User.findByEmail(email);
   if (existing) {
     console.log('A user with this email already exists:');
     console.log(JSON.stringify(existing.toSafeObject(), null, 2));
+    await disconnectDB();
     process.exit(0);
   }
 
   const passwordHash = await bcrypt.hash(password, config.bcryptRounds);
 
-  const admin = User.create({
+  const admin = await User.create({
     name,
     email,
     passwordHash,
@@ -50,10 +52,13 @@ async function createAdmin() {
 
   console.log('Admin user created successfully!');
   console.log(JSON.stringify(admin.toSafeObject(), null, 2));
+
+  await disconnectDB();
   process.exit(0);
 }
 
-createAdmin().catch((err) => {
+createAdmin().catch(async (err) => {
   console.error('Failed to create admin:', err.message);
+  await disconnectDB();
   process.exit(1);
 });

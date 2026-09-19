@@ -5,6 +5,7 @@ const path = require('path');
 const app = require('./src/app');
 const config = require('./src/config');
 const logger = require('./src/utils/logger');
+const { connectDB, disconnectDB } = require('./src/config/database');
 
 const PORT = config.port;
 
@@ -79,12 +80,13 @@ async function maybeSeedDevAdmin() {
   const User = require('./src/models/User');
   const bcrypt = require('bcrypt');
 
-  if (User.findByEmail(ADMIN_EMAIL)) {
+  const existingAdmin = await User.findByEmail(ADMIN_EMAIL);
+  if (existingAdmin) {
     return;
   }
 
   const passwordHash = await bcrypt.hash(ADMIN_PASSWORD, config.bcryptRounds);
-  User.create({
+  await User.create({
     name: ADMIN_NAME,
     email: ADMIN_EMAIL,
     passwordHash,
@@ -100,6 +102,7 @@ async function maybeSeedDevAdmin() {
 }
 
 async function start() {
+  await connectDB();
   await maybeSeedDevAdmin();
 
   server.listen(PORT, () => {
@@ -128,7 +131,8 @@ start();
 // Graceful shutdown
 process.on('SIGTERM', () => {
   logger.info('SIGTERM received, shutting down gracefully...');
-  server.close(() => {
+  server.close(async () => {
+    await disconnectDB();
     logger.info('Server closed');
     process.exit(0);
   });
@@ -136,7 +140,8 @@ process.on('SIGTERM', () => {
 
 process.on('SIGINT', () => {
   logger.info('SIGINT received, shutting down gracefully...');
-  server.close(() => {
+  server.close(async () => {
+    await disconnectDB();
     logger.info('Server closed');
     process.exit(0);
   });

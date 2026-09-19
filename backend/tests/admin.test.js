@@ -3,18 +3,27 @@ const request = require('supertest');
 const app = require('../src/app');
 const User = require('../src/models/User');
 const bcrypt = require('bcrypt');
+const { connectTestDB, clearTestDB, closeTestDB } = require('./setup');
 
 describe('Admin Routes API', () => {
     let clientToken;
     let adminToken;
 
+    beforeAll(async () => {
+        await connectTestDB();
+    });
+
+    afterAll(async () => {
+        await closeTestDB();
+    });
+
     beforeEach(async () => {
         // Clear users
-        User.deleteAll();
+        await clearTestDB();
 
         // Create regular CLIENT user
         const clientHash = await bcrypt.hash('ClientPass123!', 10);
-        User.create({
+        await User.create({
             name: 'Client User',
             email: 'client@example.com',
             passwordHash: clientHash,
@@ -23,7 +32,7 @@ describe('Admin Routes API', () => {
 
         // Create ADMIN user
         const adminHash = await bcrypt.hash('AdminPass123!', 10);
-        User.create({
+        await User.create({
             name: 'Admin User',
             email: 'admin@example.com',
             passwordHash: adminHash,
