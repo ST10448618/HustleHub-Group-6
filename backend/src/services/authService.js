@@ -3,13 +3,33 @@ const jwt = require('jsonwebtoken');
 const config = require('../config');
 const User = require('../models/User');
 const logger = require('../utils/logger');
+const ApiError = require('../utils/ApiError');
+
+// The only roles a person may select for themselves at registration.
+// ADMIN is deliberately excluded - it can only be created through the
+// controlled create-admin script (see scripts/createAdmin.js).
+const SELF_REGISTERABLE_ROLES = ['CLIENT', 'FREELANCER'];
 
 class AuthService {
   /**
    * Register a new user
    */
   static async register(userData) {
-    const { name, email, password } = userData;
+    const { name, email, password, role } = userData;
+
+    // Default to CLIENT if no role was sent at all.
+    const requestedRole = role || 'CLIENT';
+
+    if (!SELF_REGISTERABLE_ROLES.includes(requestedRole)) {
+      logger.warn('Registration attempt with disallowed role', {
+        email,
+        requestedRole
+      });
+      throw new ApiError(
+        400,
+        `Invalid role. You may register as one of: ${SELF_REGISTERABLE_ROLES.join(', ')}`
+      );
+    }
 
     // Check if user already exists
     const existingUser = await User.findByEmail(email);
@@ -21,13 +41,12 @@ class AuthService {
     // Hash password
     const passwordHash = await bcrypt.hash(password, config.bcryptRounds);
 
-    // Create user (default role: CLIENT)
-    // Admin accounts must be created through a controlled mechanism
+    // Create user
     const user = await User.create({
       name,
       email,
       passwordHash,
-      role: 'CLIENT' // Default role, admin can be promoted separately
+      role: requestedRole
     });
 
     logger.info('User registered successfully', {

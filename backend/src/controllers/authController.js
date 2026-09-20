@@ -12,13 +12,14 @@ class AuthController {
    */
   static async register(req, res, next) {
     try {
-      const { name, email, password } = req.body;
+      const { name, email, password, role } = req.body;
       
       // Register user
       const user = await AuthService.register({
         name,
         email,
-        password
+        password,
+        role
       });
       
       logger.info('User registration successful', {

@@ -1,16 +1,19 @@
 const express = require('express');
 const helmet = require('helmet');
 const cors = require('cors');
-const rateLimit = require('express-rate-limit');
 const config = require('./config');
 const logger = require('./utils/logger');
 
 // Import routes
 const authRoutes = require('./routes/authRoutes');
 const userRoutes = require('./routes/userRoutes');
+const gigRoutes = require('./routes/gigRoutes');
+const bookingRoutes = require('./routes/bookingRoutes');
+const transactionRoutes = require('./routes/transactionRoutes');
 
 // Import error handler
 const { errorHandler } = require('./middleware/errorHandler');
+const { authLimiter } = require('./middleware/rateLimiter');
 
 const app = express();
 
@@ -28,21 +31,14 @@ app.use(cors({
   optionsSuccessStatus: 200
 }));
 
-// Rate limiting - prevent brute force attacks
-const limiter = rateLimit({
-  windowMs: config.rateLimitWindow,
-  max: config.rateLimitMax,
-  message: {
-    success: false,
-    message: 'Too many requests, please try again later.'
-  },
-  standardHeaders: true,
-  legacyHeaders: false,
-  skipSuccessfulRequests: false,
-});
-
-// Apply rate limiting to sensitive endpoints
-app.use('/api/v1/auth', limiter);
+// Apply rate limiting to sensitive endpoints.
+// Skipped in the test environment: the automated suite makes many
+// auth calls per run and would otherwise trip the limiter, causing
+// unrelated test failures. (Booking's own rate limiter is applied
+// directly in bookingRoutes.js with the same test-environment guard.)
+if (process.env.NODE_ENV !== 'test') {
+  app.use('/api/v1/auth', authLimiter);
+}
 
 // Body parsing with size limits
 app.use(express.json({ limit: '10mb' }));
@@ -79,6 +75,9 @@ app.get('/health', (req, res) => {
 // API v1 routes
 app.use('/api/v1/auth', authRoutes);
 app.use('/api/v1', userRoutes);
+app.use('/api/v1/gigs', gigRoutes);
+app.use('/api/v1/bookings', bookingRoutes);
+app.use('/api/v1/transactions', transactionRoutes);
 
 // 404 handler
 app.use((req, res) => {

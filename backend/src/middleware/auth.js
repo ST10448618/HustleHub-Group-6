@@ -96,6 +96,47 @@ const authenticate = async (req, res, next) => {
 };
 
 /**
+ * Optional authentication middleware.
+ *
+ * Used by routes that are public by default but behave differently
+ * for an authenticated user (e.g. GET /gigs is public, but supports
+ * ?mine=true for a logged-in freelancer to see their own gigs).
+ *
+ * Unlike authenticate(), this NEVER rejects the request:
+ *  - No Authorization header -> proceeds as anonymous (req.user stays undefined)
+ *  - Malformed/expired/invalid token -> proceeds as anonymous rather
+ *    than failing, since the route doesn't strictly require login
+ *  - Valid token -> req.user is populated, exactly like authenticate()
+ */
+const optionalAuthenticate = async (req, res, next) => {
+  const authHeader = req.headers.authorization;
+  if (!authHeader) {
+    return next();
+  }
+
+  const parts = authHeader.split(' ');
+  if (parts.length !== 2 || parts[0] !== 'Bearer') {
+    return next();
+  }
+
+  try {
+    const decoded = AuthService.verifyToken(parts[1]);
+    const user = await AuthService.getUserById(decoded.id);
+    if (user) {
+      req.user = user;
+      req.token = parts[1];
+      req.userId = user.id;
+      req.userRole = user.role;
+    }
+  } catch (error) {
+    // Any failure here just means "treat this request as anonymous" -
+    // it is not an error condition for an optionally-authenticated route.
+  }
+
+  next();
+};
+
+/**
  * Role-based authorization middleware
  * @param {...string} roles - Allowed roles
  */
@@ -130,5 +171,6 @@ const authorize = (...roles) => {
 
 module.exports = {
   authenticate,
+  optionalAuthenticate,
   authorize
 };
