@@ -1,4 +1,4 @@
-const { body, param } = require('express-validator');
+const { body, param, query } = require('express-validator');
 const Gig = require('../models/Gig');
 
 /**
@@ -83,8 +83,29 @@ const validateGigIdParam = [
   param('id').isMongoId().withMessage('Invalid gig id')
 ];
 
+/**
+ * Validates the ?category= query parameter on GET /gigs.
+ *
+ * Security note: without this, a request like
+ * GET /gigs?category[$ne]=null gets parsed by Express's query parser
+ * into req.query.category = { $ne: null } - an OBJECT, not a string.
+ * If that object were passed straight into a Mongoose query filter
+ * unchecked, it becomes a live MongoDB query operator - a classic
+ * NoSQL injection pattern. isString() rejects any non-string value
+ * (including that kind of bracket-notation object) with a clean 400
+ * before it ever reaches the database layer.
+ */
+const validateListGigsQuery = [
+  query('category')
+    .optional()
+    .isString().withMessage('category must be a single text value')
+    .trim()
+    .isIn(Gig.CATEGORIES).withMessage(`Category must be one of: ${Gig.CATEGORIES.join(', ')}`)
+];
+
 module.exports = {
   validateCreateGig,
   validateUpdateGig,
-  validateGigIdParam
+  validateGigIdParam,
+  validateListGigsQuery
 };

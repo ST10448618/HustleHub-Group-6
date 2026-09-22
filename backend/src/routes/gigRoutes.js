@@ -6,7 +6,8 @@ const { handleValidationErrors } = require('../middleware/validate');
 const {
   validateCreateGig,
   validateUpdateGig,
-  validateGigIdParam
+  validateGigIdParam,
+  validateListGigsQuery
 } = require('../validation/gigValidation');
 
 /**
@@ -17,7 +18,13 @@ const {
  * optionalAuthenticate never blocks the request - it only attaches
  * req.user if a valid token happens to be present.
  */
-router.get('/', optionalAuthenticate, GigController.listGigs);
+router.get(
+  '/',
+  optionalAuthenticate,
+  validateListGigsQuery,
+  handleValidationErrors,
+  GigController.listGigs
+);
 
 /**
  * GET /api/v1/gigs/:id

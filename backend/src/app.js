@@ -6,14 +6,15 @@ const logger = require('./utils/logger');
 
 // Import routes
 const authRoutes = require('./routes/authRoutes');
-const userRoutes = require('./routes/userRoutes');
+const adminRoutes = require('./routes/adminRoutes');
 const gigRoutes = require('./routes/gigRoutes');
 const bookingRoutes = require('./routes/bookingRoutes');
 const transactionRoutes = require('./routes/transactionRoutes');
+const incomeRoutes = require('./routes/incomeRoutes');
 
 // Import error handler
 const { errorHandler } = require('./middleware/errorHandler');
-const { authLimiter } = require('./middleware/rateLimiter');
+const { generalLimiter, authLimiter } = require('./middleware/rateLimiter');
 
 const app = express();
 
@@ -21,8 +22,32 @@ const app = express();
 // SECURITY MIDDLEWARE
 // ====================
 
-// Helmet - sets various security headers
-app.use(helmet());
+// Helmet - sets various security headers.
+// CSP is configured explicitly rather than left as an unexplained
+// default: this server is a pure JSON API. It never serves HTML, CSS,
+// JavaScript, or images of its own, so there is nothing a browser
+// should ever be allowed to load "from" this API. default-src 'none'
+// is therefore both the strictest AND the correct policy here - it
+// isn't a compromise, since a JSON API has no legitimate resources to
+// permit in the first place. frame-ancestors 'none' additionally
+// blocks this API from ever being embedded in an iframe anywhere
+// (defence against clickjacking-style attacks). Helmet's other
+// defaults (X-Content-Type-Options: nosniff, X-Frame-Options: DENY,
+// Strict-Transport-Security, hiding X-Powered-By, etc.) remain active
+// alongside this - passing contentSecurityPolicy here only overrides
+// that one directive set, not the rest of Helmet's protections.
+app.use(
+  helmet({
+    contentSecurityPolicy: {
+      directives: {
+        defaultSrc: ["'none'"],
+        frameAncestors: ["'none'"]
+      }
+    },
+    referrerPolicy: { policy: 'no-referrer' },
+    crossOriginResourcePolicy: { policy: 'same-origin' }
+  })
+);
 
 // CORS - restrict to allowed origins
 app.use(cors({
@@ -31,18 +56,27 @@ app.use(cors({
   optionsSuccessStatus: 200
 }));
 
-// Apply rate limiting to sensitive endpoints.
+// Rate limiting.
+// generalLimiter applies a generous baseline across the entire API.
+// authLimiter and bookingLimiter (the latter applied directly in
+// bookingRoutes.js) then layer stricter limits on top for their
+// specific sensitive endpoints - this is defence in depth, not a
+// replacement for one another.
 // Skipped in the test environment: the automated suite makes many
-// auth calls per run and would otherwise trip the limiter, causing
-// unrelated test failures. (Booking's own rate limiter is applied
-// directly in bookingRoutes.js with the same test-environment guard.)
+// calls per run and would otherwise trip these limiters, causing
+// unrelated test failures.
 if (process.env.NODE_ENV !== 'test') {
+  app.use(generalLimiter);
   app.use('/api/v1/auth', authLimiter);
 }
 
-// Body parsing with size limits
-app.use(express.json({ limit: '10mb' }));
-app.use(express.urlencoded({ extended: true, limit: '10mb' }));
+// Body parsing with size limits.
+// This API only ever handles small JSON payloads (text fields, IDs,
+// numbers, dates) - there are no file uploads. 100kb is generous for
+// every real payload in this app while meaningfully bounding the
+// attack surface a 10mb limit would otherwise leave open.
+app.use(express.json({ limit: '100kb' }));
+app.use(express.urlencoded({ extended: true, limit: '100kb' }));
 
 // ====================
 // LOGGING MIDDLEWARE
@@ -74,10 +108,11 @@ app.get('/health', (req, res) => {
 
 // API v1 routes
 app.use('/api/v1/auth', authRoutes);
-app.use('/api/v1', userRoutes);
+app.use('/api/v1/admin', adminRoutes);
 app.use('/api/v1/gigs', gigRoutes);
 app.use('/api/v1/bookings', bookingRoutes);
 app.use('/api/v1/transactions', transactionRoutes);
+app.use('/api/v1/income', incomeRoutes);
 
 // 404 handler
 app.use((req, res) => {

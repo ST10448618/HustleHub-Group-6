@@ -37,7 +37,13 @@ class GigService {
   static async listPublicGigs(filters = {}) {
     const query = { status: 'ACTIVE' };
 
-    if (filters.category) {
+    // Defensive second layer: even though the route already validates
+    // that ?category is a plain string (see gigValidation.js), this
+    // guard means the service itself can never pass a non-string
+    // value (e.g. an object smuggled in via bracket-notation query
+    // params) straight into a Mongo filter, regardless of how this
+    // method is called in the future.
+    if (filters.category && typeof filters.category === 'string') {
       query.category = filters.category;
     }
 

@@ -2,6 +2,24 @@ const rateLimit = require('express-rate-limit');
 const config = require('../config');
 
 /**
+ * General baseline rate limiter, applied across the entire API.
+ * This is deliberately generous - its job is only to bound overall
+ * abuse/scraping traffic, not to restrict normal use. The stricter
+ * authLimiter and bookingLimiter below layer additional, tighter
+ * restriction on top of this for their specific sensitive endpoints.
+ */
+const generalLimiter = rateLimit({
+  windowMs: config.rateLimitWindow,
+  max: 300, // 300 requests per 15 minutes per IP, across the whole API
+  message: {
+    success: false,
+    message: 'Too many requests, please try again later.'
+  },
+  standardHeaders: true,
+  legacyHeaders: false
+});
+
+/**
  * Rate limiter for authentication endpoints (register/login).
  * Protects against brute-force credential guessing and registration
  * spam.
@@ -35,4 +53,4 @@ const bookingLimiter = rateLimit({
   legacyHeaders: false
 });
 
-module.exports = { authLimiter, bookingLimiter };
+module.exports = { generalLimiter, authLimiter, bookingLimiter };

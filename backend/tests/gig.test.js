@@ -214,8 +214,21 @@ describe('Gig API', () => {
 
             const res = await request(app).get('/api/v1/gigs');
 
-            expect(res.status).toBe(200);
+                       expect(res.status).toBe(200);
             expect(res.body.data.gigs).toHaveLength(0);
+        });
+
+        it('should reject a NoSQL-injection-style category value (e.g. ?category[$ne]=null)', async () => {
+            // Express parses bracket notation into an object, not a
+            // string - this proves that object gets rejected by
+            // validation before it can ever reach a database query.
+            const res = await request(app).get('/api/v1/gigs?category[$ne]=null');
+            expect(res.status).toBe(400);
+        });
+
+        it('should reject an invalid category string in the query', async () => {
+            const res = await request(app).get('/api/v1/gigs?category=NotARealCategory');
+            expect(res.status).toBe(400);
         });
     });
 
