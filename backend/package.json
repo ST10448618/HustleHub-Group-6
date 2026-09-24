@@ -8,6 +8,7 @@
     "dev": "nodemon server.js",
     "test": "jest --coverage",
     "test:watch": "jest --watch",
+    "test:newman": "newman run ../postman/HustleHubPlus.postman_collection.json -e ../postman/HustleHubPlus.postman_environment.json --insecure --reporters cli,json --reporter-json-export ../postman/newman-report.json",
     "create-admin": "node src/scripts/createAdmin.js",
     "check-users": "node src/scripts/checkUsers.js"
   },
@@ -25,6 +26,7 @@
   "devDependencies": {
     "jest": "^29.7.0",
     "mongodb-memory-server": "^11.2.0",
+    "newman": "^6.2.1",
     "nodemon": "^3.0.1",
     "supertest": "^6.3.3"
   },
