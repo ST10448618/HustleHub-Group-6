@@ -5,6 +5,7 @@ const TransactionService = require('./transactionService');
 const logger = require('../utils/logger');
 
 const POPULATE_FIELDS = 'name';
+const GIG_POPULATE_FIELDS = 'title';
 
 class BookingService {
   /**
@@ -75,7 +76,7 @@ class BookingService {
     }
 
     await booking.populate([
-      { path: 'gigId' },
+      { path: 'gigId', select: GIG_POPULATE_FIELDS },
       { path: 'clientId', select: POPULATE_FIELDS },
       { path: 'freelancerId', select: POPULATE_FIELDS }
     ]);
@@ -108,6 +109,7 @@ class BookingService {
     }
 
     const bookings = await Booking.find(query)
+      .populate('gigId', GIG_POPULATE_FIELDS)
       .populate('clientId', POPULATE_FIELDS)
       .populate('freelancerId', POPULATE_FIELDS)
       .sort({ createdAt: -1 });
@@ -121,6 +123,7 @@ class BookingService {
    */
   static async getByIdForUser(id, user) {
     const booking = await Booking.findById(id)
+      .populate('gigId', GIG_POPULATE_FIELDS)
       .populate('clientId', POPULATE_FIELDS)
       .populate('freelancerId', POPULATE_FIELDS);
 
@@ -161,6 +164,7 @@ class BookingService {
 
     booking.status = 'CANCELLED';
     await booking.save();
+    await booking.populate('gigId', GIG_POPULATE_FIELDS);
     await booking.populate('clientId', POPULATE_FIELDS);
     await booking.populate('freelancerId', POPULATE_FIELDS);
 
@@ -217,6 +221,7 @@ class BookingService {
       throw new ApiError(500, 'Failed to complete booking. Please try again.');
     }
 
+    await booking.populate('gigId', GIG_POPULATE_FIELDS);
     await booking.populate('clientId', POPULATE_FIELDS);
     await booking.populate('freelancerId', POPULATE_FIELDS);
 

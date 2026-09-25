@@ -60,13 +60,28 @@ const bookingSchema = new mongoose.Schema(
 
 /**
  * Returns a plain object safe to send to the client.
+ *
+ * gigId, clientId and freelancerId are always included as plain id
+ * strings, exactly as before - nothing existing changes shape.
+ *
+ * Additionally, whenever the caller has populated gigId/clientId/
+ * freelancerId (see bookingService.js), this also attaches small
+ * "gig" / "client" / "freelancer" objects (id + title, or id + name)
+ * so the frontend never has to make a second request just to display
+ * a gig title or a person's name next to a booking. This mirrors the
+ * same populated-vs-raw detection pattern Gig.toSafeObject() already
+ * uses for its "freelancer" field.
  */
 bookingSchema.methods.toSafeObject = function toSafeObject() {
-  return {
+  const isGigPopulated = this.gigId && this.gigId.title !== undefined;
+  const isClientPopulated = this.clientId && this.clientId.name !== undefined;
+  const isFreelancerPopulated = this.freelancerId && this.freelancerId.name !== undefined;
+
+  const obj = {
     id: this.id,
-    gigId: this.gigId._id ? this.gigId._id.toString() : this.gigId.toString(),
-    clientId: this.clientId._id ? this.clientId._id.toString() : this.clientId.toString(),
-    freelancerId: this.freelancerId._id
+    gigId: isGigPopulated ? this.gigId._id.toString() : this.gigId.toString(),
+    clientId: isClientPopulated ? this.clientId._id.toString() : this.clientId.toString(),
+    freelancerId: isFreelancerPopulated
       ? this.freelancerId._id.toString()
       : this.freelancerId.toString(),
     bookingDate: this.bookingDate,
@@ -77,6 +92,20 @@ bookingSchema.methods.toSafeObject = function toSafeObject() {
     createdAt: this.createdAt,
     updatedAt: this.updatedAt
   };
+
+  if (isGigPopulated) {
+    obj.gig = { id: this.gigId._id.toString(), title: this.gigId.title };
+  }
+
+  if (isClientPopulated) {
+    obj.client = { id: this.clientId._id.toString(), name: this.clientId.name };
+  }
+
+  if (isFreelancerPopulated) {
+    obj.freelancer = { id: this.freelancerId._id.toString(), name: this.freelancerId.name };
+  }
+
+  return obj;
 };
 
 const Booking = mongoose.model('Booking', bookingSchema);

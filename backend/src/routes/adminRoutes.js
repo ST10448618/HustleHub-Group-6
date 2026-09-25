@@ -14,8 +14,7 @@ const validateUpdateUser = [
     .optional()
     .trim()
     .notEmpty().withMessage('Name cannot be empty')
-    .isLength({ max: 100 }).withMessage('Name must be 100 characters or fewer')
-    .escape(),
+    .isLength({ max: 100 }).withMessage('Name must be 100 characters or fewer'),
   body('role')
     .optional()
     .trim()

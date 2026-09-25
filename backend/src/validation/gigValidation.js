@@ -8,14 +8,12 @@ const validateCreateGig = [
   body('title')
     .trim()
     .notEmpty().withMessage('Title is required')
-    .isLength({ max: 150 }).withMessage('Title must be 150 characters or fewer')
-    .escape(),
+    .isLength({ max: 150 }).withMessage('Title must be 150 characters or fewer'),
 
   body('description')
     .trim()
     .notEmpty().withMessage('Description is required')
-    .isLength({ max: 2000 }).withMessage('Description must be 2000 characters or fewer')
-    .escape(),
+    .isLength({ max: 2000 }).withMessage('Description must be 2000 characters or fewer'),
 
   body('category')
     .trim()
@@ -50,15 +48,13 @@ const validateUpdateGig = [
     .optional()
     .trim()
     .notEmpty().withMessage('Title cannot be empty')
-    .isLength({ max: 150 }).withMessage('Title must be 150 characters or fewer')
-    .escape(),
+    .isLength({ max: 150 }).withMessage('Title must be 150 characters or fewer'),
 
   body('description')
     .optional()
     .trim()
     .notEmpty().withMessage('Description cannot be empty')
-    .isLength({ max: 2000 }).withMessage('Description must be 2000 characters or fewer')
-    .escape(),
+    .isLength({ max: 2000 }).withMessage('Description must be 2000 characters or fewer'),
 
   body('category')
     .optional()
