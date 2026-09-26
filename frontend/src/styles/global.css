@@ -1,0 +1,122 @@
+/*
+ * Global base styles for HustleHub+.
+ *
+ * This file only holds resets, base typography, and a handful of
+ * layout-agnostic utility classes reused everywhere (.container,
+ * .card, .visually-hidden). Anything specific to one component type
+ * (buttons, badges, tables, etc.) belongs in that component's own
+ * CSS file, built in a later phase - keeping this file from growing
+ * into an unmaintainable dumping ground.
+ */
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: var(--font-sans);
+  background-color: var(--color-foundation);
+  color: var(--color-text);
+  font-size: 16px;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+#root {
+  min-height: 100vh;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  margin: 0;
+  font-weight: 700;
+  color: var(--color-text);
+  line-height: 1.2;
+}
+
+h1 {
+  font-size: 2.5rem;
+}
+
+h2 {
+  font-size: 2rem;
+}
+
+h3 {
+  font-size: 1.5rem;
+}
+
+h4 {
+  font-size: 1.125rem;
+}
+
+p {
+  margin: 0;
+}
+
+a {
+  color: var(--color-primary);
+  text-decoration: none;
+}
+
+a:hover {
+  text-decoration: underline;
+}
+
+button {
+  font-family: inherit;
+}
+
+img {
+  max-width: 100%;
+  display: block;
+}
+
+/* Layout utility: consistent max-width + horizontal padding used on
+   every page shell (public and authenticated), so pages don't each
+   reinvent their own container width. */
+.container {
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 var(--space-6);
+}
+
+/* A plain white content surface sitting on top of the light silver
+   page/section background - the "white content card" layer described
+   in the visual identity's material stack. */
+.card {
+  background-color: var(--color-foundation);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-card);
+  padding: var(--space-6);
+}
+
+/* Hides content visually while keeping it available to screen
+   readers - used for form labels etc. where a visible label would be
+   redundant but an accessible one is still required. */
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
