@@ -65,7 +65,17 @@ api.interceptors.response.use(
     const status = error.response?.status ?? null;
     const envelope = error.response?.data;
 
-    if (status === 401) {
+       // A 401 from the login endpoint is "wrong credentials", not
+    // "session expired" - the user was never authenticated to begin
+    // with. Same for register (a 401 there would be unexpected, but
+    // it should still never trigger a session-expired redirect).
+    // Only a 401 from any OTHER endpoint means a previously-valid
+    // token has gone bad, which is the real session-expired case.
+    const requestUrl = error.config?.url || '';
+    const isAuthEndpoint =
+      requestUrl.includes('/auth/login') || requestUrl.includes('/auth/register');
+
+    if (status === 401 && !isAuthEndpoint) {
       localStorage.removeItem(TOKEN_STORAGE_KEY);
       window.dispatchEvent(new CustomEvent(SESSION_EXPIRED_EVENT));
     }

@@ -1,0 +1,140 @@
+/*
+ * Shared styling for the Login and Register pages.
+ *
+ * NOTE: this exists because Phase 4 (the common component library -
+ * Button, Input, PasswordInput etc.) hasn't been built yet. These are
+ * plain native form elements styled directly with the design tokens.
+ * Once Phase 4 lands, Login.jsx and Register.jsx will be refactored to
+ * use the shared components instead of raw <input>/<button> elements -
+ * the visual result and behavior will stay identical, only the
+ * internal implementation changes to remove this duplication.
+ */
+
+.auth-page {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: var(--color-surface);
+  padding: var(--space-6);
+}
+
+.auth-card {
+  width: 100%;
+  max-width: 420px;
+}
+
+.auth-title {
+  text-align: center;
+  color: var(--color-primary);
+  font-size: 1.75rem;
+}
+
+.auth-title-accent {
+  color: var(--color-accent);
+}
+
+.auth-subtitle {
+  text-align: center;
+  color: var(--color-text-muted);
+  margin-top: var(--space-2);
+  margin-bottom: var(--space-6);
+}
+
+.form-field {
+  margin-bottom: var(--space-5);
+}
+
+.form-label {
+  display: block;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--color-text);
+  margin-bottom: var(--space-2);
+}
+
+.form-input {
+  width: 100%;
+  padding: var(--space-3) var(--space-4);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  font-size: 1rem;
+  color: var(--color-text);
+  background-color: var(--color-foundation);
+}
+
+.form-input:focus {
+  outline: none;
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px rgba(0, 31, 91, 0.12);
+}
+
+.form-field-error {
+  color: var(--color-danger);
+  font-size: 0.8125rem;
+  margin-top: var(--space-2);
+}
+
+.form-error-banner {
+  background-color: rgba(226, 35, 26, 0.08);
+  border: 1px solid var(--color-danger);
+  color: var(--color-danger);
+  border-radius: var(--radius-sm);
+  padding: var(--space-3) var(--space-4);
+  margin-bottom: var(--space-5);
+  font-size: 0.9375rem;
+}
+
+.password-hints {
+  list-style: none;
+  padding: 0;
+  margin: var(--space-2) 0 0;
+  font-size: 0.8125rem;
+}
+
+.password-hint {
+  color: var(--color-text-muted);
+}
+
+.password-hint-met {
+  color: var(--color-success);
+}
+
+.role-choice-group {
+  display: flex;
+  gap: var(--space-4);
+  margin-top: var(--space-2);
+}
+
+.role-choice {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-size: 0.9375rem;
+  color: var(--color-text);
+  cursor: pointer;
+}
+
+.auth-submit-button {
+  width: 100%;
+  background-color: var(--color-primary);
+  color: #fff;
+  border: none;
+  border-radius: var(--radius-sm);
+  padding: var(--space-3) var(--space-5);
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.auth-submit-button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.auth-switch-text {
+  text-align: center;
+  margin-top: var(--space-6);
+  font-size: 0.9375rem;
+  color: var(--color-text-muted);
+}
