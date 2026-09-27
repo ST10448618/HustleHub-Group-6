@@ -1,0 +1,40 @@
+.marketplace-page {
+  padding-top: var(--space-8);
+  padding-bottom: var(--space-10);
+}
+
+.marketplace-header {
+  margin-bottom: var(--space-6);
+}
+
+.marketplace-header p {
+  color: var(--color-text-muted);
+  margin-top: var(--space-2);
+}
+
+.marketplace-filters {
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr;
+  gap: var(--space-4);
+  margin-bottom: var(--space-7);
+  align-items: start;
+}
+
+/*
+ * auto-fill + minmax naturally yields ~3-4 columns on a desktop
+ * container, 2 on tablet widths, and collapses to a single column on
+ * mobile once a card can no longer fit at its minimum width - this is
+ * the responsive behavior the spec asks for, achieved without a
+ * separate hard-coded breakpoint for each tier.
+ */
+.marketplace-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: var(--space-5);
+}
+
+@media (max-width: 720px) {
+  .marketplace-filters {
+    grid-template-columns: 1fr;
+  }
+}

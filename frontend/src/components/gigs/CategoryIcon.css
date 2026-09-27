@@ -1,0 +1,11 @@
+.category-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 64px;
+  height: 64px;
+  border-radius: var(--radius-md);
+  background-color: rgba(0, 31, 91, 0.08);
+  color: var(--color-primary);
+  flex-shrink: 0;
+}

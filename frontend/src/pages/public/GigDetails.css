@@ -1,0 +1,81 @@
+.gig-details-page {
+  padding-top: var(--space-8);
+  padding-bottom: var(--space-10);
+}
+
+.gig-details-grid {
+  display: grid;
+  grid-template-columns: 1.6fr 1fr;
+  gap: var(--space-6);
+  align-items: start;
+}
+
+.gig-details-main {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.gig-details-title {
+  margin-top: var(--space-4);
+}
+
+.gig-details-freelancer {
+  color: var(--color-text-muted);
+}
+
+.gig-details-category {
+  color: var(--color-text-muted);
+  font-size: 0.8125rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.gig-details-description {
+  margin-top: var(--space-3);
+  line-height: 1.7;
+  color: var(--color-text);
+  white-space: pre-wrap;
+}
+
+.gig-details-sidebar {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  position: sticky;
+  top: var(--space-6);
+}
+
+.gig-details-sidebar h3 {
+  margin-bottom: var(--space-2);
+}
+
+.gig-details-price-row {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.9375rem;
+  color: var(--color-text-muted);
+}
+
+.gig-details-price-value {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--color-text);
+}
+
+.gig-details-payment-note {
+  color: var(--color-text-muted);
+  font-size: 0.8125rem;
+  line-height: 1.6;
+  margin: var(--space-2) 0 var(--space-3);
+}
+
+@media (max-width: 860px) {
+  .gig-details-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .gig-details-sidebar {
+    position: static;
+  }
+}

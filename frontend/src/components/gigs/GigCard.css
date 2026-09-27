@@ -1,0 +1,63 @@
+.gig-card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  color: var(--color-text);
+  text-decoration: none;
+  transition: box-shadow 0.15s ease, transform 0.15s ease;
+}
+
+.gig-card:hover {
+  text-decoration: none;
+  box-shadow: var(--shadow-panel);
+  transform: translateY(-2px);
+}
+
+.gig-card-body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  flex: 1;
+}
+
+.gig-card-title {
+  font-size: 1.0625rem;
+  line-height: 1.35;
+}
+
+.gig-card-freelancer {
+  color: var(--color-text-muted);
+  font-size: 0.875rem;
+}
+
+.gig-card-category {
+  color: var(--color-text-muted);
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.gig-card-pricing {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  margin-top: var(--space-3);
+}
+
+.gig-card-price {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--color-primary);
+}
+
+.gig-card-deposit {
+  font-size: 0.8125rem;
+  color: var(--color-text-muted);
+}
+
+.gig-card-cta {
+  align-self: flex-start;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--color-primary);
+}
