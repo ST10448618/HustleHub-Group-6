@@ -1,0 +1,23 @@
+.metric-card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.metric-card-label {
+  font-size: 0.8125rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--color-text-muted);
+}
+
+.metric-card-value {
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: var(--color-text);
+}
+
+.metric-card-accent .metric-card-value {
+  color: var(--color-primary);
+}

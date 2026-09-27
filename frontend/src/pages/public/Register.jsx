@@ -3,6 +3,9 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/useAuth.js';
 import { getDashboardPathForRole } from '../../routes/RoleRedirect.jsx';
 import { USER_ROLES } from '../../utils/constants.js';
+import Input from '../../components/common/Input.jsx';
+import PasswordInput from '../../components/common/PasswordInput.jsx';
+import Button from '../../components/common/Button.jsx';
 import './authForms.css';
 
 // Mirrors the backend's exact password rule set (see
@@ -99,49 +102,35 @@ function Register() {
         )}
 
         <form onSubmit={handleSubmit} noValidate>
-          <div className="form-field">
-            <label className="form-label" htmlFor="register-name">
-              Full Name
-            </label>
-            <input
-              id="register-name"
-              type="text"
-              className="form-input"
-              value={name}
-              onChange={(event) => setName(event.target.value)}
-              autoComplete="name"
-            />
-            {fieldErrors.name && <p className="form-field-error">{fieldErrors.name}</p>}
-          </div>
+          <Input
+            id="register-name"
+            label="Full Name"
+            type="text"
+            value={name}
+            onChange={(event) => setName(event.target.value)}
+            error={fieldErrors.name}
+            autoComplete="name"
+          />
 
-          <div className="form-field">
-            <label className="form-label" htmlFor="register-email">
-              Email
-            </label>
-            <input
-              id="register-email"
-              type="email"
-              className="form-input"
-              value={email}
-              onChange={(event) => setEmail(event.target.value)}
-              autoComplete="email"
-            />
-            {fieldErrors.email && <p className="form-field-error">{fieldErrors.email}</p>}
-          </div>
+          <Input
+            id="register-email"
+            label="Email"
+            type="email"
+            value={email}
+            onChange={(event) => setEmail(event.target.value)}
+            error={fieldErrors.email}
+            autoComplete="email"
+          />
 
-          <div className="form-field">
-            <label className="form-label" htmlFor="register-password">
-              Password
-            </label>
-            <input
+          <div>
+            <PasswordInput
               id="register-password"
-              type="password"
-              className="form-input"
+              label="Password"
               value={password}
               onChange={(event) => setPassword(event.target.value)}
+              error={fieldErrors.password}
               autoComplete="new-password"
             />
-            {fieldErrors.password && <p className="form-field-error">{fieldErrors.password}</p>}
             <ul className="password-hints">
               {PASSWORD_RULES.map((rule) => (
                 <li
@@ -154,22 +143,14 @@ function Register() {
             </ul>
           </div>
 
-          <div className="form-field">
-            <label className="form-label" htmlFor="register-confirm-password">
-              Confirm Password
-            </label>
-            <input
-              id="register-confirm-password"
-              type="password"
-              className="form-input"
-              value={confirmPassword}
-              onChange={(event) => setConfirmPassword(event.target.value)}
-              autoComplete="new-password"
-            />
-            {fieldErrors.confirmPassword && (
-              <p className="form-field-error">{fieldErrors.confirmPassword}</p>
-            )}
-          </div>
+          <PasswordInput
+            id="register-confirm-password"
+            label="Confirm Password"
+            value={confirmPassword}
+            onChange={(event) => setConfirmPassword(event.target.value)}
+            error={fieldErrors.confirmPassword}
+            autoComplete="new-password"
+          />
 
           <div className="form-field">
             <span className="form-label">I want to...</span>
@@ -199,9 +180,9 @@ function Register() {
             </div>
           </div>
 
-          <button type="submit" className="auth-submit-button" disabled={submitting}>
+          <Button type="submit" fullWidth disabled={submitting}>
             {submitting ? 'Creating account…' : 'Create Account'}
-          </button>
+          </Button>
         </form>
 
         <p className="auth-switch-text">

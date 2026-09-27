@@ -2,6 +2,9 @@ import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/useAuth.js';
 import { getDashboardPathForRole } from '../../routes/RoleRedirect.jsx';
+import Input from '../../components/common/Input.jsx';
+import PasswordInput from '../../components/common/PasswordInput.jsx';
+import Button from '../../components/common/Button.jsx';
 import './authForms.css';
 
 function Login() {
@@ -49,39 +52,28 @@ function Login() {
         )}
 
         <form onSubmit={handleSubmit} noValidate>
-          <div className="form-field">
-            <label className="form-label" htmlFor="login-email">
-              Email
-            </label>
-            <input
-              id="login-email"
-              type="email"
-              className="form-input"
-              value={email}
-              onChange={(event) => setEmail(event.target.value)}
-              required
-              autoComplete="email"
-            />
-          </div>
+          <Input
+            id="login-email"
+            label="Email"
+            type="email"
+            value={email}
+            onChange={(event) => setEmail(event.target.value)}
+            required
+            autoComplete="email"
+          />
 
-          <div className="form-field">
-            <label className="form-label" htmlFor="login-password">
-              Password
-            </label>
-            <input
-              id="login-password"
-              type="password"
-              className="form-input"
-              value={password}
-              onChange={(event) => setPassword(event.target.value)}
-              required
-              autoComplete="current-password"
-            />
-          </div>
+          <PasswordInput
+            id="login-password"
+            label="Password"
+            value={password}
+            onChange={(event) => setPassword(event.target.value)}
+            required
+            autoComplete="current-password"
+          />
 
-          <button type="submit" className="auth-submit-button" disabled={submitting}>
+          <Button type="submit" fullWidth disabled={submitting}>
             {submitting ? 'Logging in…' : 'Log In'}
-          </button>
+          </Button>
         </form>
 
         <p className="auth-switch-text">

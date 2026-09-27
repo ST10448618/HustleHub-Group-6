@@ -1,13 +1,8 @@
 /*
- * Shared styling for the Login and Register pages.
- *
- * NOTE: this exists because Phase 4 (the common component library -
- * Button, Input, PasswordInput etc.) hasn't been built yet. These are
- * plain native form elements styled directly with the design tokens.
- * Once Phase 4 lands, Login.jsx and Register.jsx will be refactored to
- * use the shared components instead of raw <input>/<button> elements -
- * the visual result and behavior will stay identical, only the
- * internal implementation changes to remove this duplication.
+ * Styling specific to the Login/Register pages only. Field styling
+ * (label, input, error) now lives in components/common/FormField.css,
+ * and the submit button's styling lives in components/common/Button.css
+ * - both were duplicated here before Phase 4 built those components.
  */
 
 .auth-page {
@@ -41,40 +36,6 @@
   margin-bottom: var(--space-6);
 }
 
-.form-field {
-  margin-bottom: var(--space-5);
-}
-
-.form-label {
-  display: block;
-  font-size: 0.875rem;
-  font-weight: 600;
-  color: var(--color-text);
-  margin-bottom: var(--space-2);
-}
-
-.form-input {
-  width: 100%;
-  padding: var(--space-3) var(--space-4);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-sm);
-  font-size: 1rem;
-  color: var(--color-text);
-  background-color: var(--color-foundation);
-}
-
-.form-input:focus {
-  outline: none;
-  border-color: var(--color-primary);
-  box-shadow: 0 0 0 3px rgba(0, 31, 91, 0.12);
-}
-
-.form-field-error {
-  color: var(--color-danger);
-  font-size: 0.8125rem;
-  margin-top: var(--space-2);
-}
-
 .form-error-banner {
   background-color: rgba(226, 35, 26, 0.08);
   border: 1px solid var(--color-danger);
@@ -88,7 +49,7 @@
 .password-hints {
   list-style: none;
   padding: 0;
-  margin: var(--space-2) 0 0;
+  margin: var(--space-2) 0 var(--space-5);
   font-size: 0.8125rem;
 }
 
@@ -113,23 +74,6 @@
   font-size: 0.9375rem;
   color: var(--color-text);
   cursor: pointer;
-}
-
-.auth-submit-button {
-  width: 100%;
-  background-color: var(--color-primary);
-  color: #fff;
-  border: none;
-  border-radius: var(--radius-sm);
-  padding: var(--space-3) var(--space-5);
-  font-size: 1rem;
-  font-weight: 600;
-  cursor: pointer;
-}
-
-.auth-submit-button:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
 }
 
 .auth-switch-text {

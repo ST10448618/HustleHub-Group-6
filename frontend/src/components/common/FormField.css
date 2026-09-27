@@ -1,0 +1,62 @@
+/*
+ * Shared styling for every form field component (Input, Select,
+ * Textarea, DateInput, PasswordInput). One file, so a label, an
+ * error message, or a focus ring never look slightly different
+ * depending on which field type it's attached to.
+ */
+
+.form-field {
+  margin-bottom: var(--space-5);
+}
+
+.form-label {
+  display: block;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--color-text);
+  margin-bottom: var(--space-2);
+}
+
+.form-input,
+.form-select,
+.form-textarea {
+  width: 100%;
+  padding: var(--space-3) var(--space-4);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  font-size: 1rem;
+  font-family: var(--font-sans);
+  color: var(--color-text);
+  background-color: var(--color-foundation);
+}
+
+.form-textarea {
+  resize: vertical;
+  min-height: 100px;
+}
+
+.form-input:focus,
+.form-select:focus,
+.form-textarea:focus {
+  outline: none;
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px rgba(0, 31, 91, 0.12);
+}
+
+.form-input-error,
+.form-select-error,
+.form-textarea-error {
+  border-color: var(--color-danger);
+}
+
+.form-field-error {
+  color: var(--color-danger);
+  font-size: 0.8125rem;
+  margin-top: var(--space-2);
+}
+
+.form-hint {
+  color: var(--color-text-muted);
+  font-size: 0.8125rem;
+  margin-top: var(--space-2);
+}

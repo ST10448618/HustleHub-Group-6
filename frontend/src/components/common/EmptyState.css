@@ -1,0 +1,27 @@
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: var(--space-9) var(--space-6);
+  color: var(--color-text-muted);
+}
+
+.empty-state-icon {
+  color: var(--color-text-muted);
+  margin-bottom: var(--space-4);
+}
+
+.empty-state-icon-danger {
+  color: var(--color-danger);
+}
+
+.empty-state-title {
+  color: var(--color-text);
+  margin-bottom: var(--space-2);
+}
+
+.empty-state-description {
+  max-width: 360px;
+  margin-bottom: var(--space-5);
+}
