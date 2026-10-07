@@ -1,0 +1,44 @@
+.page-breadcrumbs {
+  margin-bottom: var(--space-4);
+}
+
+.page-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: var(--space-4);
+  margin-bottom: var(--space-6);
+}
+
+.page-header-title {
+  font-size: 1.75rem;
+}
+
+.page-header-subtitle {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+  margin-top: var(--space-2);
+  color: var(--color-text-muted);
+}
+
+.page-header-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+}
+
+/* Shared small heading used for the titled sections/cards inside
+   authenticated pages. */
+.section-title {
+  font-size: 1.125rem;
+  margin-bottom: var(--space-4);
+}
+
+@media (max-width: 600px) {
+  .page-header-title {
+    font-size: 1.5rem;
+  }
+}

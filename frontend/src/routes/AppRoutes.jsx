@@ -4,6 +4,9 @@ import ProtectedRoute from './ProtectedRoute.jsx';
 import AppShell from '../components/layout/AppShell.jsx';
 import ErrorBoundary from '../components/common/ErrorBoundary.jsx';
 import PagePlaceholder from '../pages/PagePlaceholder.jsx';
+import ClientDashboard from '../pages/client/ClientDashboard.jsx';
+import ClientBookings from '../pages/client/ClientBookings.jsx';
+import ClientBookingDetails from '../pages/client/ClientBookingDetails.jsx';
 
 import Landing from '../pages/public/Landing.jsx';
 import Marketplace from '../pages/public/Marketplace.jsx';
@@ -48,18 +51,9 @@ function AppRoutes() {
         {/* CLIENT */}
         <Route element={<ProtectedRoute allowedRoles={[USER_ROLES.CLIENT]} />}>
           <Route element={<AppShell />}>
-            <Route
-              path="/client/dashboard"
-              element={<PagePlaceholder title="Client Dashboard" phase={7} />}
-            />
-            <Route
-              path="/client/bookings"
-              element={<PagePlaceholder title="My Bookings" phase={7} />}
-            />
-            <Route
-              path="/client/bookings/:id"
-              element={<PagePlaceholder title="Booking Details" phase={7} />}
-            />
+            <Route path="/client/dashboard" element={<ClientDashboard />} />
+            <Route path="/client/bookings" element={<ClientBookings />} />
+            <Route path="/client/bookings/:id" element={<ClientBookingDetails />} />
           </Route>
         </Route>
 

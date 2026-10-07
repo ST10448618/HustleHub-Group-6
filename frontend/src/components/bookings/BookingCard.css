@@ -1,0 +1,73 @@
+.booking-card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+}
+
+.booking-card-top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--space-4);
+}
+
+.booking-card-heading {
+  min-width: 0;
+}
+
+.booking-card-title {
+  font-size: 1.125rem;
+  overflow-wrap: anywhere;
+}
+
+.booking-card-title a {
+  color: var(--color-text);
+}
+
+.booking-card-title a:hover {
+  color: var(--color-primary);
+}
+
+.booking-card-parties {
+  margin-top: var(--space-1);
+  color: var(--color-text-muted);
+  font-size: 0.9375rem;
+  white-space: pre-wrap;
+}
+
+.booking-card-facts {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+  gap: var(--space-4);
+  margin: 0;
+}
+
+.booking-card-facts dt {
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--color-text-muted);
+}
+
+.booking-card-facts dd {
+  margin: var(--space-1) 0 0;
+  font-weight: 600;
+}
+
+.booking-card-note {
+  display: block;
+  font-size: 0.75rem;
+  font-weight: 400;
+  color: var(--color-text-muted);
+}
+
+.booking-card-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+}
+
+.booking-card-cancel {
+  color: var(--color-danger);
+}
