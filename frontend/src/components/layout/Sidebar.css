@@ -1,0 +1,119 @@
+.sidebar {
+  position: sticky;
+  top: 0;
+  align-self: flex-start;
+  width: 248px;
+  height: 100vh;
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  background-color: var(--color-primary);
+  color: #ffffff;
+  overflow-y: auto;
+}
+
+.sidebar-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--space-5) var(--space-5) var(--space-4);
+}
+
+.sidebar-logo {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #ffffff;
+  text-decoration: none;
+}
+
+.sidebar-logo:hover {
+  text-decoration: none;
+}
+
+.sidebar-logo-accent {
+  color: var(--color-accent);
+}
+
+.sidebar-close {
+  display: none;
+  background: transparent;
+  border: none;
+  color: #ffffff;
+  cursor: pointer;
+  padding: var(--space-1);
+  border-radius: var(--radius-sm);
+}
+
+.sidebar-nav {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  padding: var(--space-3);
+}
+
+.sidebar-link {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-3) var(--space-4);
+  border-radius: var(--radius-sm);
+  border-left: 3px solid transparent;
+  color: rgba(255, 255, 255, 0.82);
+  font-weight: 500;
+  font-size: 0.9375rem;
+  text-decoration: none;
+  transition: background-color 0.15s ease, color 0.15s ease;
+}
+
+.sidebar-link:hover {
+  background-color: rgba(255, 255, 255, 0.08);
+  color: #ffffff;
+  text-decoration: none;
+}
+
+.sidebar-link-active {
+  background-color: rgba(255, 255, 255, 0.14);
+  border-left-color: var(--color-accent);
+  color: #ffffff;
+}
+
+.sidebar-link:focus-visible,
+.sidebar-close:focus-visible {
+  outline: 2px solid #ffffff;
+  outline-offset: 2px;
+}
+
+.sidebar-backdrop {
+  display: none;
+}
+
+/* Tablet / mobile: the sidebar becomes an off-canvas drawer. */
+@media (max-width: 900px) {
+  .sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    z-index: 40;
+    transform: translateX(-100%);
+    visibility: hidden;
+    transition: transform 0.2s ease, visibility 0.2s ease;
+  }
+
+  .sidebar-open {
+    transform: translateX(0);
+    visibility: visible;
+  }
+
+  .sidebar-close {
+    display: inline-flex;
+  }
+
+  .sidebar-backdrop {
+    display: block;
+    position: fixed;
+    inset: 0;
+    z-index: 30;
+    background-color: rgba(21, 34, 56, 0.5);
+  }
+}

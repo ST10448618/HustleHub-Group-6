@@ -1,0 +1,20 @@
+/* Shared by the 403, 404 and Server Error pages. */
+.status-page {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 60vh;
+  padding-top: var(--space-9);
+  padding-bottom: var(--space-9);
+}
+
+.status-page-fullscreen {
+  min-height: 100vh;
+}
+
+.status-page-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: var(--space-3);
+}

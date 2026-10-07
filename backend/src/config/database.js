@@ -15,6 +15,9 @@ const logger = require('../utils/logger');
  * and exit rather than starting a server that would fail on every
  * request.
  */
+
+const FALLBACK_DNS_SERVERS = ['8.8.8.8', '8.8.4.4', '1.1.1.1'];
+
 async function connectDB() {
   try {
     await mongoose.connect(config.mongoUri);

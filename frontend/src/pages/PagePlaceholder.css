@@ -1,0 +1,4 @@
+.page-placeholder-text {
+  margin-top: var(--space-3);
+  color: var(--color-text-muted);
+}
