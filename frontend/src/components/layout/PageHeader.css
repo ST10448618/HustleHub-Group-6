@@ -42,3 +42,7 @@
     font-size: 1.5rem;
   }
 }
+
+.page-alert {
+  margin-bottom: var(--space-5);
+}

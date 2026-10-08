@@ -71,11 +71,10 @@ const gigSchema = new mongoose.Schema(
  * so it correctly catches an update that would create an invalid
  * combination even when only one of the two fields was sent.
  */
-gigSchema.pre('validate', function enforceDepositNotAbovePrice(next) {
+gigSchema.pre('validate', function enforceDepositNotAbovePrice() {
   if (this.depositAmount > this.price) {
     this.invalidate('depositAmount', 'Deposit amount cannot be greater than the price');
   }
-  next();
 });
 
 /**

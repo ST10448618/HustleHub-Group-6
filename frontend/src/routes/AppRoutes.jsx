@@ -7,6 +7,10 @@ import PagePlaceholder from '../pages/PagePlaceholder.jsx';
 import ClientDashboard from '../pages/client/ClientDashboard.jsx';
 import ClientBookings from '../pages/client/ClientBookings.jsx';
 import ClientBookingDetails from '../pages/client/ClientBookingDetails.jsx';
+import MyGigs from '../pages/freelancer/MyGigs.jsx';
+import CreateGig from '../pages/freelancer/CreateGig.jsx';
+import EditGig from '../pages/freelancer/EditGig.jsx';
+import FreelancerGigDetails from '../pages/freelancer/FreelancerGigDetails.jsx';
 
 import Landing from '../pages/public/Landing.jsx';
 import Marketplace from '../pages/public/Marketplace.jsx';
@@ -64,22 +68,10 @@ function AppRoutes() {
               path="/freelancer/dashboard"
               element={<PagePlaceholder title="Freelancer Dashboard" phase={10} />}
             />
-            <Route
-              path="/freelancer/gigs"
-              element={<PagePlaceholder title="My Gigs" phase={8} />}
-            />
-            <Route
-              path="/freelancer/gigs/create"
-              element={<PagePlaceholder title="Create Gig" phase={8} />}
-            />
-            <Route
-              path="/freelancer/gigs/:id"
-              element={<PagePlaceholder title="Gig Details" phase={8} />}
-            />
-            <Route
-              path="/freelancer/gigs/:id/edit"
-              element={<PagePlaceholder title="Edit Gig" phase={8} />}
-            />
+            <Route path="/freelancer/gigs" element={<MyGigs />} />
+            <Route path="/freelancer/gigs/create" element={<CreateGig />} />
+            <Route path="/freelancer/gigs/:id" element={<FreelancerGigDetails />} />
+            <Route path="/freelancer/gigs/:id/edit" element={<EditGig />} />
             <Route
               path="/freelancer/bookings"
               element={<PagePlaceholder title="Bookings" phase={9} />}

@@ -1,0 +1,30 @@
+.my-gigs-title {
+  font-weight: 600;
+  overflow-wrap: anywhere;
+}
+
+.gig-row-actions {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  white-space: nowrap;
+}
+
+.gig-row-actions a,
+.gig-row-delete {
+  font-size: 0.9375rem;
+  font-weight: 600;
+}
+
+.gig-row-delete {
+  background: none;
+  border: none;
+  padding: 0;
+  color: var(--color-danger);
+  cursor: pointer;
+  font-family: inherit;
+}
+
+.gig-row-delete:hover {
+  text-decoration: underline;
+}
