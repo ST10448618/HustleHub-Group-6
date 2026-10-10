@@ -1,0 +1,34 @@
+.admin-user-name {
+  font-weight: 600;
+  overflow-wrap: anywhere;
+}
+
+.admin-row-actions {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  white-space: nowrap;
+}
+
+.admin-row-actions a,
+.admin-row-link {
+  font-size: 0.9375rem;
+  font-weight: 600;
+}
+
+.admin-row-link {
+  background: none;
+  border: none;
+  padding: 0;
+  color: var(--color-primary);
+  cursor: pointer;
+  font-family: inherit;
+}
+
+.admin-row-link:hover {
+  text-decoration: underline;
+}
+
+.admin-row-danger {
+  color: var(--color-danger);
+}

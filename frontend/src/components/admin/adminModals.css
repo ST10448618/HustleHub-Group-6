@@ -1,0 +1,19 @@
+.admin-edit-user {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.admin-edit-user-email {
+  color: var(--color-text-muted);
+  overflow-wrap: anywhere;
+}
+
+.admin-modal-banner {
+  background-color: rgba(226, 35, 26, 0.08);
+  border: 1px solid var(--color-danger);
+  color: var(--color-danger);
+  border-radius: var(--radius-sm);
+  padding: var(--space-3) var(--space-4);
+  font-size: 0.9375rem;
+}

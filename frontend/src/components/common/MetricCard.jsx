@@ -1,17 +1,16 @@
 import './MetricCard.css';
 
 /**
- * A single stat tile: label small and muted, value large and bold -
- * per the visual spec's rule that "financial numbers are visually
- * dominant over their labels." Used for income summaries (Screens 12,
- * 19), dashboard counts (Screens 07, 22), and admin user detail's
- * gigsCount/bookingsCount/transactionsCount tiles (Screen 24).
+ * A big number with a muted label above it. `hint` is an optional
+ * small line underneath for a breakdown (e.g. "5 clients · 3
+ * freelancers"); nothing changes for cards that don't pass one.
  */
-function MetricCard({ label, value, accent = false }) {
+function MetricCard({ label, value, accent = false, hint }) {
   return (
     <div className={`metric-card card ${accent ? 'metric-card-accent' : ''}`.trim()}>
       <p className="metric-card-label">{label}</p>
       <p className="metric-card-value">{value}</p>
+      {hint && <p className="metric-card-hint">{hint}</p>}
     </div>
   );
 }

@@ -17,6 +17,9 @@ import FreelancerDashboard from '../pages/freelancer/FreelancerDashboard.jsx';
 import Finances from '../pages/freelancer/Finances.jsx';
 import Transactions from '../pages/freelancer/Transactions.jsx';
 import TransactionDetails from '../pages/freelancer/TransactionDetails.jsx';
+import AdminDashboard from '../pages/admin/AdminDashboard.jsx';
+import AdminUsers from '../pages/admin/AdminUsers.jsx';
+import AdminUserDetails from '../pages/admin/AdminUserDetails.jsx';
 
 import Landing from '../pages/public/Landing.jsx';
 import Marketplace from '../pages/public/Marketplace.jsx';
@@ -86,18 +89,9 @@ function AppRoutes() {
         {/* ADMIN */}
         <Route element={<ProtectedRoute allowedRoles={[USER_ROLES.ADMIN]} />}>
           <Route element={<AppShell />}>
-            <Route
-              path="/admin/dashboard"
-              element={<PagePlaceholder title="Admin Dashboard" phase={11} />}
-            />
-            <Route
-              path="/admin/users"
-              element={<PagePlaceholder title="Users" phase={12} />}
-            />
-            <Route
-              path="/admin/users/:id"
-              element={<PagePlaceholder title="User Details" phase={12} />}
-            />
+            <Route path="/admin/dashboard" element={<AdminDashboard />} />
+            <Route path="/admin/users" element={<AdminUsers />} />
+            <Route path="/admin/users/:id" element={<AdminUserDetails />} />
             <Route
               path="/admin/gigs"
               element={<PagePlaceholder title="Gigs" phase={12} />}

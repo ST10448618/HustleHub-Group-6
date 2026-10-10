@@ -21,3 +21,8 @@
 .metric-card-accent .metric-card-value {
   color: var(--color-primary);
 }
+
+.metric-card-hint {
+  font-size: 0.8125rem;
+  color: var(--color-text-muted);
+}
