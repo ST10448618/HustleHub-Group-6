@@ -1,0 +1,12 @@
+.admin-booking-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.admin-booking-hint {
+  flex-basis: 100%;
+  font-size: 0.8125rem;
+  color: var(--color-text-muted);
+}

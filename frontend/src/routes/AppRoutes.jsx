@@ -20,6 +20,13 @@ import TransactionDetails from '../pages/freelancer/TransactionDetails.jsx';
 import AdminDashboard from '../pages/admin/AdminDashboard.jsx';
 import AdminUsers from '../pages/admin/AdminUsers.jsx';
 import AdminUserDetails from '../pages/admin/AdminUserDetails.jsx';
+import AdminGigs from '../pages/admin/AdminGigs.jsx';
+import AdminGigDetails from '../pages/admin/AdminGigDetails.jsx';
+import AdminBookings from '../pages/admin/AdminBookings.jsx';
+import AdminBookingDetails from '../pages/admin/AdminBookingDetails.jsx';
+import AdminTransactions from '../pages/admin/AdminTransactions.jsx';
+import AdminTransactionDetails from '../pages/admin/AdminTransactionDetails.jsx';
+import Profile from '../pages/Profile.jsx';
 
 import Landing from '../pages/public/Landing.jsx';
 import Marketplace from '../pages/public/Marketplace.jsx';
@@ -92,37 +99,19 @@ function AppRoutes() {
             <Route path="/admin/dashboard" element={<AdminDashboard />} />
             <Route path="/admin/users" element={<AdminUsers />} />
             <Route path="/admin/users/:id" element={<AdminUserDetails />} />
-            <Route
-              path="/admin/gigs"
-              element={<PagePlaceholder title="Gigs" phase={12} />}
-            />
-            <Route
-              path="/admin/gigs/:id"
-              element={<PagePlaceholder title="Gig Details" phase={12} />}
-            />
-            <Route
-              path="/admin/bookings"
-              element={<PagePlaceholder title="Bookings" phase={12} />}
-            />
-            <Route
-              path="/admin/bookings/:id"
-              element={<PagePlaceholder title="Booking Details" phase={12} />}
-            />
-            <Route
-              path="/admin/transactions"
-              element={<PagePlaceholder title="Transactions" phase={12} />}
-            />
-            <Route
-              path="/admin/transactions/:id"
-              element={<PagePlaceholder title="Transaction Details" phase={12} />}
-            />
+            <Route path="/admin/gigs" element={<AdminGigs />} />
+            <Route path="/admin/gigs/:id" element={<AdminGigDetails />} />
+            <Route path="/admin/bookings" element={<AdminBookings />} />
+            <Route path="/admin/bookings/:id" element={<AdminBookingDetails />} />
+            <Route path="/admin/transactions" element={<AdminTransactions />} />
+            <Route path="/admin/transactions/:id" element={<AdminTransactionDetails />} />
           </Route>
         </Route>
 
         {/* Any authenticated role */}
         <Route element={<ProtectedRoute />}>
           <Route element={<AppShell />}>
-            <Route path="/profile" element={<PagePlaceholder title="Profile" phase={13} />} />
+          <Route path="/profile" element={<Profile />} />
           </Route>
         </Route>
 
