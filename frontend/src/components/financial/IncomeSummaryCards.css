@@ -1,0 +1,12 @@
+.income-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+  gap: var(--space-5);
+}
+
+.income-cards-note {
+  margin-top: var(--space-4);
+  font-size: 0.8125rem;
+  color: var(--color-text-muted);
+  max-width: 760px;
+}

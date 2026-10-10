@@ -13,6 +13,10 @@ import EditGig from '../pages/freelancer/EditGig.jsx';
 import FreelancerGigDetails from '../pages/freelancer/FreelancerGigDetails.jsx';
 import FreelancerBookings from '../pages/freelancer/FreelancerBookings.jsx';
 import FreelancerBookingDetails from '../pages/freelancer/FreelancerBookingDetails.jsx';
+import FreelancerDashboard from '../pages/freelancer/FreelancerDashboard.jsx';
+import Finances from '../pages/freelancer/Finances.jsx';
+import Transactions from '../pages/freelancer/Transactions.jsx';
+import TransactionDetails from '../pages/freelancer/TransactionDetails.jsx';
 
 import Landing from '../pages/public/Landing.jsx';
 import Marketplace from '../pages/public/Marketplace.jsx';
@@ -66,28 +70,16 @@ function AppRoutes() {
         {/* FREELANCER */}
         <Route element={<ProtectedRoute allowedRoles={[USER_ROLES.FREELANCER]} />}>
           <Route element={<AppShell />}>
-            <Route
-              path="/freelancer/dashboard"
-              element={<PagePlaceholder title="Freelancer Dashboard" phase={10} />}
-            />
+            <Route path="/freelancer/dashboard" element={<FreelancerDashboard />} />
             <Route path="/freelancer/gigs" element={<MyGigs />} />
             <Route path="/freelancer/gigs/create" element={<CreateGig />} />
             <Route path="/freelancer/gigs/:id" element={<FreelancerGigDetails />} />
             <Route path="/freelancer/gigs/:id/edit" element={<EditGig />} />
             <Route path="/freelancer/bookings" element={<FreelancerBookings />} />
             <Route path="/freelancer/bookings/:id" element={<FreelancerBookingDetails />} />
-            <Route
-              path="/freelancer/finances"
-              element={<PagePlaceholder title="Finances" phase={10} />}
-            />
-            <Route
-              path="/freelancer/transactions"
-              element={<PagePlaceholder title="Transactions" phase={10} />}
-            />
-            <Route
-              path="/freelancer/transactions/:id"
-              element={<PagePlaceholder title="Transaction Details" phase={10} />}
-            />
+            <Route path="/freelancer/finances" element={<Finances />} />
+            <Route path="/freelancer/transactions" element={<Transactions />} />
+            <Route path="/freelancer/transactions/:id" element={<TransactionDetails />} />
           </Route>
         </Route>
 

@@ -1,0 +1,30 @@
+.freelancer-dashboard {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+}
+
+.freelancer-dashboard-metrics {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+  gap: var(--space-5);
+}
+
+.freelancer-dashboard-columns {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-5);
+  align-items: start;
+}
+
+.freelancer-dashboard-link {
+  margin-top: var(--space-4);
+  font-size: 0.9375rem;
+  font-weight: 600;
+}
+
+@media (max-width: 1100px) {
+  .freelancer-dashboard-columns {
+    grid-template-columns: 1fr;
+  }
+}
