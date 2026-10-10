@@ -3,7 +3,6 @@ import { USER_ROLES } from '../utils/constants';
 import ProtectedRoute from './ProtectedRoute.jsx';
 import AppShell from '../components/layout/AppShell.jsx';
 import ErrorBoundary from '../components/common/ErrorBoundary.jsx';
-import PagePlaceholder from '../pages/PagePlaceholder.jsx';
 import ClientDashboard from '../pages/client/ClientDashboard.jsx';
 import ClientBookings from '../pages/client/ClientBookings.jsx';
 import ClientBookingDetails from '../pages/client/ClientBookingDetails.jsx';

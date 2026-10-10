@@ -1,4 +1,4 @@
-import { createContext, useCallback, useEffect, useState } from 'react';
+import { createContext, startTransition, useCallback, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import * as authService from '../services/authService';
 import { TOKEN_STORAGE_KEY, SESSION_EXPIRED_EVENT } from '../services/api';
@@ -73,8 +73,15 @@ export function AuthProvider({ children }) {
    */
   useEffect(() => {
     function handleSessionExpired() {
-      setCurrentUser(null);
-      navigate('/session-expired', { replace: true });
+      // Both changes must be applied TOGETHER. React Router applies a
+      // navigation inside a transition, so if only navigate() were in
+      // one, clearing the user would render first and ProtectedRoute
+      // would bounce straight to /login: the Session Expired page
+      // would never be shown.
+      startTransition(() => {
+        setCurrentUser(null);
+        navigate('/session-expired', { replace: true });
+      });
     }
 
     window.addEventListener(SESSION_EXPIRED_EVENT, handleSessionExpired);
