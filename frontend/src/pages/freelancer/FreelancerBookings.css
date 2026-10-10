@@ -1,0 +1,11 @@
+.freelancer-bookings-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(420px, 1fr));
+  gap: var(--space-5);
+}
+
+@media (max-width: 520px) {
+  .freelancer-bookings-list {
+    grid-template-columns: 1fr;
+  }
+}
