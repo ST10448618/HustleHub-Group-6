@@ -1,9 +1,5 @@
 const mongoose = require('mongoose');
 
-// PENDING is deliberately not included: a booking is considered
-// confirmed the moment it's created (the deposit is "paid" immediately
-// as part of that same request), so there is no intermediate waiting
-// state in this system's business rules.
 const BOOKING_STATUSES = ['CONFIRMED', 'COMPLETED', 'CANCELLED'];
 
 const bookingSchema = new mongoose.Schema(
@@ -27,11 +23,6 @@ const bookingSchema = new mongoose.Schema(
       type: Date,
       required: [true, 'Booking date is required']
     },
-    // amount, depositAmount and remainingAmount are always copied from
-    // the gig at the moment of booking (see bookingService.createBooking).
-    // They are never taken directly from the request body, so a change
-    // to the gig's price later never retroactively changes an existing
-    // booking's financial record.
     amount: {
       type: Number,
       required: true,
@@ -58,20 +49,6 @@ const bookingSchema = new mongoose.Schema(
   }
 );
 
-/**
- * Returns a plain object safe to send to the client.
- *
- * gigId, clientId and freelancerId are always included as plain id
- * strings, exactly as before - nothing existing changes shape.
- *
- * Additionally, whenever the caller has populated gigId/clientId/
- * freelancerId (see bookingService.js), this also attaches small
- * "gig" / "client" / "freelancer" objects (id + title, or id + name)
- * so the frontend never has to make a second request just to display
- * a gig title or a person's name next to a booking. This mirrors the
- * same populated-vs-raw detection pattern Gig.toSafeObject() already
- * uses for its "freelancer" field.
- */
 bookingSchema.methods.toSafeObject = function toSafeObject() {
   const isGigPopulated = this.gigId && this.gigId.title !== undefined;
   const isClientPopulated = this.clientId && this.clientId.name !== undefined;

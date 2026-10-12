@@ -8,29 +8,6 @@ const POPULATE_FIELDS = 'name';
 const GIG_POPULATE_FIELDS = 'title';
 
 class BookingService {
-  /**
-   * Creates a booking for the given gig, on behalf of the given client.
-   *
-   * Business flow:
-   *   validate request (done by bookingValidation.js before this runs)
-   *   -> load gig, confirm it exists and is bookable
-   *   -> confirm the client is not the gig's own freelancer
-   *   -> derive authoritative amounts from the gig (never from the request)
-   *   -> create the booking
-   *   -> create the matching DEPOSIT transaction
-   *
-   * Atomicity note: MongoDB multi-document transactions require a
-   * replica set, which the in-memory database used by our automated
-   * tests does not run by default (a real Atlas cluster does support
-   * them). Rather than depend on infrastructure that differs between
-   * test and production, this uses a simple, explicit compensating
-   * action instead: if creating the deposit transaction fails after
-   * the booking was already created, the booking is deleted before
-   * the error is re-thrown, so the system never ends up with a
-   * "booking with no deposit transaction" left behind. This is a
-   * documented, deliberate trade-off - not full ACID atomicity, but
-   * safe for the two-step operation actually being performed here.
-   */
   static async createBooking(client, gigId, bookingDate) {
     const gig = await Gig.findById(gigId);
 
@@ -91,14 +68,6 @@ class BookingService {
     return booking.toSafeObject();
   }
 
-  /**
-   * Returns bookings scoped to the requesting user's role:
-   *  - CLIENT: their own bookings
-   *  - FREELANCER: bookings made against their gigs
-   *  - ADMIN: every booking, system-wide
-   * The frontend never gets to choose whose bookings are returned -
-   * scope is entirely derived from the authenticated identity.
-   */
   static async listForUser(user) {
     let query = {};
 
@@ -117,10 +86,6 @@ class BookingService {
     return bookings.map((b) => b.toSafeObject());
   }
 
-  /**
-   * Returns a single booking, but only to the client who made it, the
-   * freelancer who owns the gig, or an admin.
-   */
   static async getByIdForUser(id, user) {
     const booking = await Booking.findById(id)
       .populate('gigId', GIG_POPULATE_FIELDS)
@@ -136,14 +101,6 @@ class BookingService {
     return booking.toSafeObject();
   }
 
-  /**
-   * Cancels a booking. Only the owning client or an admin may do this,
-   * and only while the booking is still CONFIRMED.
-   *
-   * Business rule: the deposit is retained (its transaction is never
-   * modified or removed) and the remaining payment is simply never
-   * scheduled, since a CANCELLED booking can no longer be completed.
-   */
   static async cancelBooking(id, user) {
     const booking = await Booking.findById(id);
 
@@ -173,11 +130,6 @@ class BookingService {
     return booking.toSafeObject();
   }
 
-  /**
-   * Marks a booking complete once the gig date has arrived, and
-   * releases the remaining payment by creating a REMAINDER
-   * transaction. Only the owning freelancer or an admin may do this.
-   */
   static async completeBooking(id, user) {
     const booking = await Booking.findById(id);
 
@@ -230,12 +182,6 @@ class BookingService {
     return booking.toSafeObject();
   }
 
-  /**
-   * Whether the booking's scheduled date has arrived. Kept as one
-   * clear, named function rather than an inline date comparison, so
-   * Part 3's financial presentation can reuse the same definition of
-   * "has this booking's work date passed" if needed.
-   */
   static hasBookingDatePassed(booking) {
     return new Date() >= new Date(booking.bookingDate);
   }

@@ -2,13 +2,6 @@ import { formatCurrency } from './formatCurrency.js';
 import { getBookingGigTitle } from './bookingDisplay.js';
 import { getRoleLabel } from './userDisplay.js';
 
-/**
- * Everything on the Admin Dashboard is DERIVED from four full lists
- * the app already fetches - there is no stats or reporting endpoint.
- * Keeping the maths here, as plain functions, means it is easy to
- * reason about and to test.
- */
-
 export function computeAdminStats({ users, gigs, bookings, transactions }) {
   const paid = transactions.filter((t) => t.status === 'PAID');
   const sumPaid = (type) =>
@@ -42,15 +35,6 @@ export function computeAdminStats({ users, gigs, bookings, transactions }) {
   };
 }
 
-/**
- * A "what's been happening" feed, newest first, built from existing
- * records:
- *   - a user joining (their createdAt; admin accounts are skipped)
- *   - a gig being listed (its createdAt)
- *   - a booking being made (createdAt)
- *   - a booking completing / cancelling (updatedAt - a booking is only
- *     ever updated by being completed or cancelled)
- */
 export function buildAdminActivity({ users, gigs, bookings }, limit = 8) {
   const events = [];
 

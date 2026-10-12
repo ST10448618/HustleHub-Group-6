@@ -49,14 +49,6 @@ router.delete(
   AdminController.deleteUser
 );
 
-/**
- * System-wide gig visibility (including INACTIVE gigs). Admin
- * management of an individual gig (PUT/DELETE) is deliberately NOT
- * duplicated here - the existing /api/v1/gigs/:id routes already
- * allow an ADMIN to update or deactivate any gig (see
- * gigService.assertOwnerOrAdmin), so a second admin-only path would
- * be redundant.
- */
 router.get('/gigs', AdminController.listGigs);
 
 module.exports = router;

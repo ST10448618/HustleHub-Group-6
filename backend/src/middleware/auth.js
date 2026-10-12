@@ -1,15 +1,6 @@
 const AuthService = require('../services/authService');
 const logger = require('../utils/logger');
 
-/**
- * JWT Authentication Middleware
- * 
- * This middleware:
- * 1. Extracts JWT from Authorization header
- * 2. Verifies the token
- * 3. Attaches authenticated user to req.user
- * 4. Handles missing/invalid/expired tokens gracefully
- */
 const authenticate = async (req, res, next) => {
   try {
     // Get token from Authorization header
@@ -95,19 +86,6 @@ const authenticate = async (req, res, next) => {
   }
 };
 
-/**
- * Optional authentication middleware.
- *
- * Used by routes that are public by default but behave differently
- * for an authenticated user (e.g. GET /gigs is public, but supports
- * ?mine=true for a logged-in freelancer to see their own gigs).
- *
- * Unlike authenticate(), this NEVER rejects the request:
- *  - No Authorization header -> proceeds as anonymous (req.user stays undefined)
- *  - Malformed/expired/invalid token -> proceeds as anonymous rather
- *    than failing, since the route doesn't strictly require login
- *  - Valid token -> req.user is populated, exactly like authenticate()
- */
 const optionalAuthenticate = async (req, res, next) => {
   const authHeader = req.headers.authorization;
   if (!authHeader) {

@@ -7,12 +7,6 @@ const logger = require('../utils/logger');
 const PUBLIC_FREELANCER_FIELDS = 'name';
 
 class GigService {
-  /**
-   * Creates a new gig owned by the given freelancer.
-   * freelancerId always comes from the authenticated JWT identity -
-   * never from the request body - so a user can never create a gig
-   * under someone else's identity.
-   */
   static async createGig(freelancerId, data) {
     const gig = await Gig.create({
       freelancerId,
@@ -36,13 +30,6 @@ class GigService {
    */
   static async listPublicGigs(filters = {}) {
     const query = { status: 'ACTIVE' };
-
-    // Defensive second layer: even though the route already validates
-    // that ?category is a plain string (see gigValidation.js), this
-    // guard means the service itself can never pass a non-string
-    // value (e.g. an object smuggled in via bracket-notation query
-    // params) straight into a Mongo filter, regardless of how this
-    // method is called in the future.
     if (filters.category && typeof filters.category === 'string') {
       query.category = filters.category;
     }
@@ -66,14 +53,6 @@ class GigService {
     return gigs.map((gig) => gig.toSafeObject());
   }
 
-  /**
-   * A single gig by id, for the public gig-details screen. Returns
-   * the gig regardless of ACTIVE/INACTIVE status - a client following
-   * an old link should see a real 404 only if the gig was truly
-   * deleted, not if it's merely deactivated. (No such case exists yet
-   * since deletion is a soft delete, but this keeps the behaviour
-   * consistent and simple.)
-   */
   static async getGigById(id) {
     const gig = await Gig.findById(id).populate('freelancerId', PUBLIC_FREELANCER_FIELDS);
 
@@ -84,12 +63,6 @@ class GigService {
     return gig.toSafeObject();
   }
 
-  /**
-   * Updates a gig. Only the owning freelancer or an admin may do this.
-   * Uses load -> assign -> save() (rather than findByIdAndUpdate) so
-   * that Mongoose's validators - including the deposit-vs-price
-   * schema-level check - run against the fully merged document.
-   */
   static async updateGig(id, requestingUser, updates) {
     const gig = await Gig.findById(id);
 
@@ -114,13 +87,6 @@ class GigService {
     return gig.toSafeObject();
   }
 
-  /**
-   * "Deletes" a gig. This is a soft delete: the gig is marked
-   * INACTIVE rather than removed from the database. This matters
-   * once bookings exist (Phase B5) - a booking's gigId reference, and
-   * the freelancer's own booking history for that gig, must remain
-   * valid and auditable even after the gig is taken off the market.
-   */
   static async deleteGig(id, requestingUser) {
     const gig = await Gig.findById(id);
 
@@ -139,12 +105,6 @@ class GigService {
     return gig.toSafeObject();
   }
 
-  /**
-   * Ownership + RBAC check shared by update and delete. A valid
-   * FREELANCER token proves who the user is, but not that they own
-   * THIS gig - that second check happens here, comparing the gig's
-   * stored freelancerId against the authenticated user's id.
-   */
   static assertOwnerOrAdmin(gig, requestingUser) {
     const isOwner = gig.freelancerId.toString() === requestingUser.id;
     const isAdmin = requestingUser.role === 'ADMIN';

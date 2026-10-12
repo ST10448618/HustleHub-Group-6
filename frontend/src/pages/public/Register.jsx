@@ -8,10 +8,6 @@ import PasswordInput from '../../components/common/PasswordInput.jsx';
 import Button from '../../components/common/Button.jsx';
 import './authForms.css';
 
-// Mirrors the backend's exact password rule set (see
-// backend/src/validation/authValidation.js) so the person gets
-// immediate feedback without waiting for a round trip - the backend
-// still re-validates everything regardless; this is convenience only.
 const PASSWORD_RULES = [
   { test: (pw) => pw.length >= 8, label: 'At least 8 characters' },
   { test: (pw) => /[A-Z]/.test(pw), label: 'One uppercase letter' },
@@ -68,11 +64,7 @@ function Register() {
       const user = await registerThenLogin({ name, email, password, role });
       navigate(getDashboardPathForRole(user.role), { replace: true });
     } catch (error) {
-      // A 400 validation failure carries error.errors (field-level
-      // messages from express-validator) - map those directly onto
-      // the matching inputs. Anything else (409 duplicate email, a
-      // 500) has no errors array, so error.message is already the
-      // exact safe string to show as a form-level banner instead.
+
       if (error.errors) {
         const mapped = {};
         error.errors.forEach((fieldError) => {

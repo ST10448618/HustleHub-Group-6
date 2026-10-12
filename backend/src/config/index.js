@@ -1,14 +1,11 @@
 const dotenv = require('dotenv');
 
+//Get started with JSON web tokens. (n.d.). Auth0. Retrieved October 12, 2026, 
+// from https://auth0.com/learn/json-web-tokens
+
 // Load environment variables
 dotenv.config();
 
-/**
- * Validates required environment configuration at startup.
- * The application must fail fast and loudly if critical security
- * configuration is missing, rather than running in a silently
- * insecure state (e.g. signing JWTs with an empty/undefined secret).
- */
 function validateEnv() {
   const errors = [];
 
@@ -23,10 +20,6 @@ function validateEnv() {
     errors.push('PORT must be a valid number if provided in .env.');
   }
 
-  // MONGODB_URI is required for the real running app, but not for
-  // automated tests: tests use an isolated in-memory database instead
-  // (introduced in Phase B3) and must never depend on a real Atlas
-  // connection to run.
   if (process.env.NODE_ENV !== 'test' && !process.env.MONGODB_URI) {
     errors.push(
       'MONGODB_URI is missing. Set your MongoDB Atlas connection string in .env.'

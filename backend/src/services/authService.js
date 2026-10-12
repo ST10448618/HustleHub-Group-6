@@ -5,9 +5,6 @@ const User = require('../models/User');
 const logger = require('../utils/logger');
 const ApiError = require('../utils/ApiError');
 
-// The only roles a person may select for themselves at registration.
-// ADMIN is deliberately excluded - it can only be created through the
-// controlled create-admin script (see scripts/createAdmin.js).
 const SELF_REGISTERABLE_ROLES = ['CLIENT', 'FREELANCER'];
 
 class AuthService {
@@ -76,10 +73,6 @@ class AuthService {
       throw new Error('Invalid email or password');
     }
 
-    // Generate JWT
-    // Payload is intentionally minimal: only what's needed to identify
-    // the authenticated user and check their role. Email and other
-    // personal information are never placed inside the token.
     const token = jwt.sign(
       {
         id: user.id,

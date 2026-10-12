@@ -25,9 +25,6 @@ if (certsExist) {
   server = https.createServer(httpsOptions, app);
   logger.info('SSL certificates loaded successfully');
 } else if (config.nodeEnv === 'production') {
-  // HustleHub+ must never appear to satisfy the HTTPS requirement while
-  // secretly running over plain HTTP. In production, missing certificates
-  // is a fatal startup error, not a silent fallback.
   logger.error('='.repeat(60));
   logger.error('FATAL: SSL certificates not found.');
   logger.error('HustleHub+ must not run over plain HTTP in production.');
@@ -46,19 +43,6 @@ if (certsExist) {
   server = http.createServer(app);
 }
 
-/**
- * Optional, opt-in, development-only admin seeding.
- *
- * This NEVER runs in production, and is OFF by default even in
- * development. It exists purely so a developer can obtain an admin
- * account without a separate script while user storage is still
- * in-memory (this in-memory phase ends once MongoDB is introduced).
- *
- * To enable: set SEED_ADMIN_ON_BOOT=true and provide ADMIN_NAME,
- * ADMIN_EMAIL, ADMIN_PASSWORD in your .env file. Normal registration
- * still can never create an ADMIN account - this is a separate,
- * explicit, developer-controlled mechanism.
- */
 async function maybeSeedDevAdmin() {
   if (config.nodeEnv === 'production') {
     return;

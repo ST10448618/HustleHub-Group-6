@@ -9,9 +9,6 @@ const validateTransactionIdParam = [
   param('id').isMongoId().withMessage('Invalid transaction id')
 ];
 
-// Transactions are never created directly by a client request - only
-// as a consequence of booking creation/completion inside
-// bookingService. These routes are read-only by design.
 router.use(authenticate);
 
 router.get('/', TransactionController.listTransactions);
