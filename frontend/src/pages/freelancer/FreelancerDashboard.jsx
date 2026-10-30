@@ -17,24 +17,11 @@ import { formatCurrency } from '../../utils/formatCurrency.js';
 import { formatDate, formatDateTime } from '../../utils/formatDate.js';
 import { getBookingGigTitle } from '../../utils/bookingDisplay.js';
 import { getTransactionTypeLabel } from '../../utils/transactionDisplay.js';
+import { getMyIncome, getMyTax } from '../../services/incomeService.js';
 import './FreelancerDashboard.css';
 
 const LIST_LIMIT = 5;
 
-/**
- * Screen 12. Everything comes from three existing endpoints, fetched
- * together once when the page opens (no polling - the numbers only
- * change when a booking is made or completed, and this page reloads
- * whenever you come back to it):
- *   GET /income/me      the four income figures
- *   GET /bookings       for the counts and the upcoming list
- *   GET /transactions   for the chart and the recent list
- * There is no tax card: the backend has no tax data.
- *
- * A brand-new freelancer legitimately has all zeros, so zeros are
- * shown as zeros (with the chart's own empty message) rather than
- * swapping the whole page for an "empty" screen.
- */
 function FreelancerDashboard() {
   const { currentUser } = useAuth();
   const [income, setIncome] = useState(null);
@@ -42,19 +29,23 @@ function FreelancerDashboard() {
   const [transactions, setTransactions] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [tax, setTax] = useState(null);
 
   const loadDashboard = useCallback(async () => {
     setLoading(true);
     setError('');
     try {
-      const [incomeData, bookingData, transactionData] = await Promise.all([
+      const [incomeData, bookingData, transactionData, taxData] = await Promise.all([
         getMyIncome(),
         getMyBookings(),
-        getTransactions()
+        getTransactions(),
+        // A failing tax estimate must not blank the whole dashboard.
+        getMyTax().catch(() => null)
       ]);
       setIncome(incomeData);
       setBookings(bookingData);
       setTransactions(transactionData);
+      setTax(taxData);
     } catch (err) {
       setError(err.message);
     } finally {
@@ -129,6 +120,13 @@ function FreelancerDashboard() {
             <MetricCard label="Pending / Upcoming" value={formatCurrency(income.pendingIncome)} />
             <MetricCard label="Confirmed Bookings" value={confirmedCount} />
             <MetricCard label="Completed Bookings" value={completedCount} />
+            {tax && (
+              <MetricCard
+                label="Estimated Tax (YTD)"
+                value={formatCurrency(tax.estimatedTax)}
+                hint={`Tax year ${tax.taxYear}`}
+              />
+            )}
           </div>
 
           <IncomeOverTimeChart transactions={transactions} />
