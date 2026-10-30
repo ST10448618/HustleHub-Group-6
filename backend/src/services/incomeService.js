@@ -1,23 +1,9 @@
 const Transaction = require('../models/Transaction');
 const Booking = require('../models/Booking');
+const { TAX_TABLE } = require('../config/taxConfig');
+const { calculateIncomeTax, getTaxYearBounds } = require('../utils/taxCalculator');
 
 class IncomeService {
-  /**
-   * Computes a freelancer's income summary, derived live from
-   * authoritative Transaction and Booking records rather than a
-   * separately-stored running total. This guarantees the number
-   * shown is always consistent with the underlying financial history,
-   * with nothing to fall out of sync.
-   *
-   *  - depositIncome:   sum of PAID DEPOSIT transactions
-   *  - remainingIncome: sum of PAID REMAINDER transactions
-   *  - totalIncome:     depositIncome + remainingIncome
-   *  - pendingIncome:   remainingAmount of bookings that are still
-   *                     CONFIRMED (work not yet marked complete, so
-   *                     the remainder hasn't been released yet).
-   *                     A CANCELLED booking's remainder is correctly
-   *                     excluded here - it will never be paid.
-   */
   static async getSummaryForFreelancer(freelancerId) {
     const paidTransactions = await Transaction.find({
       freelancerId,
@@ -54,6 +40,32 @@ class IncomeService {
       pendingIncome
     };
   }
-}
 
+    static async getTaxEstimateForFreelancer(freelancerId, now = new Date()) {
+    const { label, start, end } = getTaxYearBounds(now);
+
+    const paidTransactions = await Transaction.find({
+      freelancerId,
+      status: 'PAID',
+      createdAt: { $gte: start, $lt: end }
+    });
+
+    const taxableIncome = paidTransactions.reduce(
+      (sum, transaction) => sum + transaction.amount,
+      0
+    );
+
+    return {
+      taxYear: label,
+      taxTable: TAX_TABLE.yearLabel,
+      periodStart: start.toISOString(),
+      periodEnd: new Date(end.getTime() - 24 * 60 * 60 * 1000).toISOString(),
+      ...calculateIncomeTax(taxableIncome),
+      disclaimer:
+        'This is an estimate based on your recorded income for the tax year. It does not ' +
+        'include deductible expenses, other income or provisional tax payments, and is not ' +
+        'tax advice. Always confirm your liability with SARS or a tax practitioner.'
+    };
+}
+}
 module.exports = IncomeService;

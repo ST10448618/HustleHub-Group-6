@@ -8,5 +8,6 @@ const { authenticate, authorize } = require('../middleware/auth');
  * FREELANCER only
  */
 router.get('/me', authenticate, authorize('FREELANCER'), IncomeController.getMyIncome);
+router.get('/tax', authenticate, authorize('FREELANCER'), IncomeController.getMyTax);
 
 module.exports = router;

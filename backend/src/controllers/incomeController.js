@@ -18,6 +18,19 @@ class IncomeController {
       next(error);
     }
   }
-}
 
+    static async getMyTax(req, res, next) {
+    try {
+      const estimate = await IncomeService.getTaxEstimateForFreelancer(req.user.id);
+
+      res.status(200).json({
+        success: true,
+        message: 'Tax estimate retrieved successfully',
+        data: estimate
+      });
+    } catch (error) {
+      next(error);
+    }
+}
+}
 module.exports = IncomeController;
