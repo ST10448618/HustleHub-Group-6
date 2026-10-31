@@ -74,6 +74,7 @@ const authenticate = async (req, res, next) => {
     }
     
     logger.warn('Authentication failed', {
+      event: 'AUTH_FAILED',
       error: error.message,
       path: req.path,
       ip: req.ip
@@ -131,6 +132,7 @@ const authorize = (...roles) => {
     // Check if user role is allowed
     if (!roles.includes(req.user.role)) {
       logger.warn('Authorization failed - insufficient role', {
+        event: 'ACCESS_DENIED',
         userId: req.user.id,
         role: req.user.role,
         requiredRoles: roles,

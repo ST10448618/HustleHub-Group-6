@@ -46,6 +46,7 @@ class BookingService {
       // no corresponding deposit transaction.
       await Booking.findByIdAndDelete(booking._id);
       logger.error('Failed to create deposit transaction, booking rolled back', {
+        event: 'TRANSACTION_FAILED',
         bookingId: booking.id,
         message: error.message
       });
@@ -59,6 +60,7 @@ class BookingService {
     ]);
 
     logger.info('Booking created', {
+      event: 'BOOKING_CREATED',
       bookingId: booking.id,
       gigId: gig.id,
       clientId: client.id,
@@ -125,7 +127,11 @@ class BookingService {
     await booking.populate('clientId', POPULATE_FIELDS);
     await booking.populate('freelancerId', POPULATE_FIELDS);
 
-    logger.info('Booking cancelled', { bookingId: booking.id, cancelledBy: user.id });
+    logger.info('Booking cancelled', {
+      event: 'BOOKING_CANCELLED',
+      bookingId: booking.id,
+      cancelledBy: user.id
+    });
 
     return booking.toSafeObject();
   }
@@ -167,6 +173,7 @@ class BookingService {
       booking.status = 'CONFIRMED';
       await booking.save();
       logger.error('Failed to create remainder transaction, completion rolled back', {
+        event: 'TRANSACTION_FAILED',
         bookingId: booking.id,
         message: error.message
       });
@@ -177,7 +184,11 @@ class BookingService {
     await booking.populate('clientId', POPULATE_FIELDS);
     await booking.populate('freelancerId', POPULATE_FIELDS);
 
-    logger.info('Booking completed', { bookingId: booking.id, completedBy: user.id });
+    logger.info('Booking completed', {
+      event: 'BOOKING_COMPLETED',
+      bookingId: booking.id,
+      completedBy: user.id
+    });
 
     return booking.toSafeObject();
   }

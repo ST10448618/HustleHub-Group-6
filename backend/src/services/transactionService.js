@@ -1,12 +1,13 @@
 const Transaction = require('../models/Transaction');
 const ApiError = require('../utils/ApiError');
+const logger = require('../utils/logger');
 
 const POPULATE_FIELDS = 'name';
 
 class TransactionService {
 
   static async createDepositTransaction(booking) {
-    return Transaction.create({
+    const transaction = await Transaction.create({
       bookingId: booking._id,
       clientId: booking.clientId,
       freelancerId: booking.freelancerId,
@@ -14,16 +15,34 @@ class TransactionService {
       amount: booking.depositAmount,
       status: 'PAID'
     });
+    TransactionService.logCreated(transaction);
+    return transaction;
   }
 
   static async createRemainderTransaction(booking) {
-    return Transaction.create({
+    const transaction = await Transaction.create({
       bookingId: booking._id,
       clientId: booking.clientId,
       freelancerId: booking.freelancerId,
       type: 'REMAINDER',
       amount: booking.remainingAmount,
       status: 'PAID'
+    });
+    TransactionService.logCreated(transaction);
+    return transaction;
+  }
+
+  // Financial records are the most audit-sensitive events in the system.
+  static logCreated(transaction) {
+    logger.info('Transaction recorded', {
+      event: 'TRANSACTION_CREATED',
+      transactionId: transaction.id,
+      bookingId: String(transaction.bookingId),
+      clientId: String(transaction.clientId),
+      freelancerId: String(transaction.freelancerId),
+      type: transaction.type,
+      amount: transaction.amount,
+      status: transaction.status
     });
   }
 
