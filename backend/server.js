@@ -91,6 +91,14 @@ async function start() {
 
   server.listen(PORT, () => {
     const protocol = server instanceof https.Server ? 'https' : 'http';
+
+    // Structured boot event - the first entry to appear in the cloud logs.
+    logger.info('Server started', {
+      event: 'SERVER_STARTED',
+      port: PORT,
+      environment: config.nodeEnv
+    });
+
     logger.info('='.repeat(60));
     logger.info('HUSTLEHUB+ API SERVER');
     logger.info('='.repeat(60));
@@ -112,21 +120,36 @@ async function start() {
 
 start();
 
-// Graceful shutdown
-process.on('SIGTERM', () => {
-  logger.info('SIGTERM received, shutting down gracefully...');
-  server.close(async () => {
-    await disconnectDB();
-    logger.info('Server closed');
-    process.exit(0);
+// Errors that escape every try/catch must still be logged.
+process.on('unhandledRejection', (reason) => {
+  logger.error('Unhandled promise rejection', {
+    event: 'UNHANDLED_REJECTION',
+    detail: reason instanceof Error ? reason.message : String(reason),
+    stack: reason instanceof Error ? reason.stack : undefined
   });
 });
 
-process.on('SIGINT', () => {
-  logger.info('SIGINT received, shutting down gracefully...');
+process.on('uncaughtException', async (error) => {
+  logger.error('Uncaught exception - shutting down', {
+    event: 'UNCAUGHT_EXCEPTION',
+    detail: error.message,
+    stack: error.stack
+  });
+  await logger.flush();
+  process.exit(1);
+});
+
+// Graceful shutdown. Flushing before exit makes sure the last log
+// entries reach the cloud logging platform instead of being lost.
+function shutdown(signal) {
+  logger.info(`${signal} received, shutting down gracefully...`, { event: 'SERVER_SHUTDOWN' });
   server.close(async () => {
     await disconnectDB();
     logger.info('Server closed');
+    await logger.flush();
     process.exit(0);
   });
-});
+}
+
+process.on('SIGTERM', () => shutdown('SIGTERM'));
+process.on('SIGINT', () => shutdown('SIGINT'));
