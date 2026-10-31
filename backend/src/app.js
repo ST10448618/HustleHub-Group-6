@@ -2,7 +2,6 @@ const express = require('express'); //OpenJS Foundation. (2017). Express - node.
 const helmet = require('helmet');
 const cors = require('cors');
 const config = require('./config');
-const logger = require('./utils/logger');
 
 // Import routes
 const authRoutes = require('./routes/authRoutes');
@@ -15,6 +14,7 @@ const incomeRoutes = require('./routes/incomeRoutes');
 // Import error handler
 const { errorHandler } = require('./middleware/errorHandler');
 const { generalLimiter, authLimiter } = require('./middleware/rateLimiter');
+const requestLogger = require('./middleware/requestLogger');
 
 const app = express();
 
@@ -45,6 +45,10 @@ app.use(cors({
   optionsSuccessStatus: 200
 }));
 
+// Request logging runs BEFORE the rate limiters so blocked (429)
+// requests are logged as well.
+app.use(requestLogger);
+
 // Rate limiting.
 // unrelated test failures.
 if (process.env.NODE_ENV !== 'test') {
@@ -55,21 +59,6 @@ if (process.env.NODE_ENV !== 'test') {
 // Body parsing with size limits.
 app.use(express.json({ limit: '100kb' }));
 app.use(express.urlencoded({ extended: true, limit: '100kb' }));
-
-// ====================
-// LOGGING MIDDLEWARE
-// ====================
-
-// Request logging
-app.use((req, res, next) => {
-  logger.debug('Incoming request', {
-    method: req.method,
-    path: req.path,
-    ip: req.ip,
-    userAgent: req.get('user-agent')
-  });
-  next();
-});
 
 // ====================
 // API ROUTES
