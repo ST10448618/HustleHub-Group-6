@@ -1,13 +1,8 @@
 const { body, param } = require('express-validator');
 
-/**
- * Returns the start of today (00:00:00) so a booking date of "today"
- * is always accepted regardless of what time it currently is - only
- * genuinely past dates are rejected.
- */
 function startOfToday() {
   const now = new Date();
-  now.setHours(0, 0, 0, 0);
+  now.setUTCHours(0, 0, 0, 0);
   return now;
 }
 

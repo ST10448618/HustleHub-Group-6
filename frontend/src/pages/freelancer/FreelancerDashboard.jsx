@@ -9,7 +9,6 @@ import Button from '../../components/common/Button.jsx';
 import LoadingSkeleton from '../../components/common/LoadingSkeleton.jsx';
 import ErrorState from '../../components/common/ErrorState.jsx';
 import { useAuth } from '../../context/useAuth.js';
-import { getMyIncome } from '../../services/incomeService.js';
 import { getMyBookings } from '../../services/bookingService.js';
 import { getTransactions } from '../../services/transactionService.js';
 import { BOOKING_STATUSES } from '../../utils/constants.js';

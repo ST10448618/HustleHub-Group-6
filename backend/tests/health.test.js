@@ -18,7 +18,7 @@ describe('Health Check API', () => {
             const response = await request(app)
                 .get('/health');
             
-            expect(response.body.environment).toBe('development');
+            expect(response.body.environment).toBe(process.env.NODE_ENV);
         });
     });
 });
