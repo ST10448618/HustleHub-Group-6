@@ -1,18 +1,5 @@
 const mongoose = require('mongoose');
 
-/**
- * User schema
- *
- * Replaces the temporary in-memory User storage used in Part 1 with a
- * real, persistent MongoDB collection via Mongoose.
- *
- * Mongoose automatically provides:
- *  - _id            (the real primary key, an ObjectId)
- *  - id             (a virtual getter that returns _id as a string -
- *                    this is why user.id continues to work unchanged
- *                    everywhere in the codebase after this migration)
- *  - createdAt/updatedAt (via the timestamps option below)
- */
 const userSchema = new mongoose.Schema(
   {
     name: {
@@ -35,12 +22,32 @@ const userSchema = new mongoose.Schema(
       type: String,
       enum: ['CLIENT', 'FREELANCER', 'ADMIN'],
       default: 'CLIENT'
+    },
+    // Brute-force protection (account lockout). Counts consecutive failed
+    // logins; when it reaches the configured limit, lockUntil is set and
+    // logins are refused until that time passes. Both are reset by a
+    // successful login. Never exposed to the client (see toSafeObject).
+    failedLoginAttempts: {
+      type: Number,
+      default: 0
+    },
+    lockUntil: {
+      type: Date,
+      default: null
     }
   },
   {
     timestamps: true
   }
 );
+
+/**
+ * True while the account is temporarily locked after too many failed
+ * logins. An expired lock counts as unlocked.
+ */
+userSchema.methods.isLocked = function isLocked() {
+  return Boolean(this.lockUntil && this.lockUntil.getTime() > Date.now());
+};
 
 /**
  * Find a user by email, normalising the same way registration/login do.
