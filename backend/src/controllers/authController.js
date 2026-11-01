@@ -99,6 +99,32 @@ class AuthController {
       next(error);
     }
   }
+
+    /**
+   * End the current session
+   * POST /api/v1/auth/logout
+   *
+   * Adds this token's unique id to the revocation list, so it is
+   * rejected from now on even though its signature is still valid.
+   */
+  static async logout(req, res, next) {
+    try {
+      const decoded = AuthService.verifyToken(req.token);
+      await AuthService.revokeToken(decoded);
+
+      logger.info('User logged out - token revoked', {
+        event: 'LOGOUT',
+        userId: req.user.id
+      });
+
+      return res.status(200).json({
+        success: true,
+        message: 'Logged out successfully'
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
 }
 
 module.exports = AuthController;

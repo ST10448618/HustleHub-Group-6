@@ -27,4 +27,11 @@ router.get(
   AuthController.getMe
 );
 
+// Ends the session: the presented token is added to the revocation list.
+router.post(
+  '/logout',
+  authenticate,
+  AuthController.logout
+);
+
 module.exports = router;
