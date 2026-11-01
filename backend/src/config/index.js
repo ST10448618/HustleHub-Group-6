@@ -48,6 +48,8 @@ module.exports = {
 
   // Security
   bcryptRounds: parseInt(process.env.BCRYPT_ROUNDS, 10) || 10,
+  maxFailedLogins: parseInt(process.env.MAX_FAILED_LOGINS, 10) || 5,
+  lockoutMinutes: parseInt(process.env.LOCKOUT_MINUTES, 10) || 15,
 
   // Rate limiting
   rateLimitWindow: 15 * 60 * 1000, // 15 minutes
