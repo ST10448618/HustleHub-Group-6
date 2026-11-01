@@ -2,6 +2,7 @@ import { createContext, startTransition, useCallback, useEffect, useState } from
 import { useNavigate } from 'react-router-dom';
 import * as authService from '../services/authService';
 import { TOKEN_STORAGE_KEY, SESSION_EXPIRED_EVENT } from '../services/api';
+import { revokeSession } from '../services/sessionService';
 
 const AuthContext = createContext(undefined);
 export { AuthContext };
@@ -20,31 +21,9 @@ export { AuthContext };
  */
 export function AuthProvider({ children }) {
   const [currentUser, setCurrentUser] = useState(null);
-  // Lazily initialized from whether a token already exists, rather
-  // than always starting true and having an effect flip it to false
-  // on the "no token" path. That would be a same-tick render just to
-  // undo the initial guess - wasted work, and exactly the kind of
-  // "setState in an effect" a linter should catch. With no token,
-  // there's nothing to wait for, so loading starts false immediately.
   const [loading, setLoading] = useState(() => Boolean(localStorage.getItem(TOKEN_STORAGE_KEY)));
   const navigate = useNavigate();
 
-  /**
-   * On app boot: if a token is already sitting in localStorage from a
-   * previous visit, ask the backend who it belongs to (GET /auth/me)
-   * rather than trusting anything decoded from the token itself. If
-   * that call fails, the token was already cleared and
-   * SESSION_EXPIRED_EVENT already fired by the response interceptor
-   * in services/api.js - there is nothing further to do here besides
-   * making sure currentUser stays null.
-   *
-   * This IS a legitimate use of an effect - per React's own guidance,
-   * "effects let you synchronize a component with an external
-   * system," and a backend session check is exactly that external
-   * system. The setState calls below only ever run after the
-   * `await`, inside the async result of a real network round trip -
-   * never synchronously during the effect's own execution.
-   */
   const restoreSession = useCallback(async () => {
     const token = localStorage.getItem(TOKEN_STORAGE_KEY);
     if (!token) {
@@ -110,6 +89,7 @@ export function AuthProvider({ children }) {
   );
 
   const logout = useCallback(() => {
+    revokeSession(localStorage.getItem(TOKEN_STORAGE_KEY));
     localStorage.removeItem(TOKEN_STORAGE_KEY);
     setCurrentUser(null);
     navigate('/login', { replace: true });
