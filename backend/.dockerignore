@@ -1,0 +1,16 @@
+node_modules
+npm-debug.log*
+coverage
+tests
+.env
+.env.*
+!.env.example
+certificates
+*.pem
+*.key
+*.crt
+Dockerfile
+.dockerignore
+test-output.txt
+fail.txt
+dnsfix.cjs
