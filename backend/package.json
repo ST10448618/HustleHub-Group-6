@@ -24,7 +24,7 @@
     "mongoose": "^8.0.0"
   },
   "devDependencies": {
-    "jest": "^29.7.0",
+    "jest": "^30.5.2",
     "mongodb-memory-server": "^11.2.0",
     "newman": "^6.2.1",
     "nodemon": "^3.0.1",
