@@ -1,9 +1,9 @@
-FROM node:22-bookworm-slim AS deps
+FROM node:25-bookworm-slim AS deps
 WORKDIR /app
 COPY package*.json ./
 RUN npm ci --omit=dev
 
-FROM node:22-bookworm-slim AS certs
+FROM node:25-bookworm-slim AS certs
 RUN apt-get update \
     && apt-get install -y --no-install-recommends openssl \
     && rm -rf /var/lib/apt/lists/*
@@ -13,7 +13,7 @@ RUN openssl req -x509 -newkey rsa:2048 -nodes \
       -subj "/CN=localhost" \
       -addext "subjectAltName=DNS:localhost,DNS:backend,IP:127.0.0.1"
 
-FROM node:22-bookworm-slim AS runtime
+FROM node:25-bookworm-slim AS runtime
 ENV NODE_ENV=production
 WORKDIR /app
 
