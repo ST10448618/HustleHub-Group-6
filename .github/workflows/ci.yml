@@ -17,6 +17,9 @@ env:
   NODE_VERSION: '22'
 
 jobs:
+  # ---------------------------------------------------------------------------
+  # Backend: install dependencies, run the unit/integration tests
+  # ---------------------------------------------------------------------------
   backend:
     name: Backend - install and test
     runs-on: ubuntu-latest
@@ -29,17 +32,17 @@ jobs:
       MONGOMS_DOWNLOAD_DIR: ${{ github.workspace }}/.mongodb-binaries
     steps:
       - name: Check out the code
-        uses: actions/checkout@v4
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
 
       - name: Set up Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
         with:
           node-version: ${{ env.NODE_VERSION }}
           cache: npm
           cache-dependency-path: backend/package-lock.json
 
       - name: Cache the MongoDB test binary
-        uses: actions/cache@v4
+        uses: actions/cache@d4323d4df104b026a6aa633fdb11d772146be0bf # v4.2.2
         with:
           path: .mongodb-binaries
           key: mongodb-memory-server-${{ runner.os }}-${{ hashFiles('backend/package-lock.json') }}
@@ -55,13 +58,16 @@ jobs:
 
       - name: Upload coverage report
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         with:
           name: backend-coverage
           path: backend/coverage
           retention-days: 14
           if-no-files-found: ignore
 
+  # ---------------------------------------------------------------------------
+  # Frontend: install, lint, run the component tests, production build
+  # ---------------------------------------------------------------------------
   frontend:
     name: Frontend - install, lint, test, build
     runs-on: ubuntu-latest
@@ -71,10 +77,10 @@ jobs:
         working-directory: frontend
     steps:
       - name: Check out the code
-        uses: actions/checkout@v4
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
 
       - name: Set up Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
         with:
           node-version: ${{ env.NODE_VERSION }}
           cache: npm
@@ -95,12 +101,15 @@ jobs:
           VITE_API_BASE_URL: https://localhost:5000/api/v1
 
       - name: Upload the build output
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         with:
           name: frontend-dist
           path: frontend/dist
           retention-days: 7
 
+  # ---------------------------------------------------------------------------
+  # Security: known-vulnerable dependencies (npm audit)
+  # ---------------------------------------------------------------------------
   dependency-audit:
     name: Security - dependency audit (${{ matrix.app }})
     runs-on: ubuntu-latest
@@ -114,10 +123,10 @@ jobs:
         working-directory: ${{ matrix.app }}
     steps:
       - name: Check out the code
-        uses: actions/checkout@v4
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
 
       - name: Set up Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
         with:
           node-version: ${{ env.NODE_VERSION }}
 
@@ -131,13 +140,16 @@ jobs:
         continue-on-error: true
         run: npm audit
 
+  # ---------------------------------------------------------------------------
+  # Security: secrets accidentally committed (Gitleaks, full git history)
+  # ---------------------------------------------------------------------------
   secret-scan:
     name: Security - secret scan (Gitleaks)
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
       - name: Check out the full history
-        uses: actions/checkout@v4
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
         with:
           fetch-depth: 0
 
@@ -148,6 +160,9 @@ jobs:
             --source /repo --config /repo/.gitleaks.toml \
             --redact --verbose --no-banner
 
+  # ---------------------------------------------------------------------------
+  # Static analysis: SAST with Semgrep (OWASP Top 10, Node.js, JavaScript rules)
+  # ---------------------------------------------------------------------------
   static-analysis:
     name: Static analysis - Semgrep
     runs-on: ubuntu-latest
@@ -156,7 +171,7 @@ jobs:
       image: semgrep/semgrep:latest
     steps:
       - name: Check out the code
-        uses: actions/checkout@v4
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
 
       # --error makes the job fail when a WARNING or ERROR finding exists.
       # Findings are printed in the log and saved as SARIF.
@@ -175,7 +190,7 @@ jobs:
 
       - name: Upload the analysis results
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         with:
           name: semgrep-results
           path: semgrep-results.sarif
@@ -189,10 +204,10 @@ jobs:
     timeout-minutes: 30
     steps:
       - name: Check out the code
-        uses: actions/checkout@v4
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
 
       - name: Set up Node.js (for Newman)
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
         with:
           node-version: ${{ env.NODE_VERSION }}
           cache: npm
@@ -232,9 +247,9 @@ jobs:
         run: |
           headers="$(curl -sI http://localhost:3000)"
           echo "$headers"
-          echo "$headers" | grep -qi '^content-security-policy:'
-          echo "$headers" | grep -qi '^x-frame-options: DENY'
-          echo "$headers" | grep -qi '^x-content-type-options: nosniff'
+          for expected in "content-security-policy:" "x-frame-options: deny" "x-content-type-options: nosniff" "referrer-policy:" "permissions-policy:"; do
+            echo "$headers" | grep -qi "^$expected" || { echo "MISSING SECURITY HEADER: $expected"; exit 1; }
+          done
 
       - name: Install Newman
         working-directory: backend
@@ -247,13 +262,15 @@ jobs:
 
       - name: Upload the Newman report
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         with:
           name: newman-report
           path: postman/newman-report.json
           retention-days: 14
           if-no-files-found: ignore
 
+      # --scanners vuln: only known CVEs. (The image deliberately contains a
+      # self-signed development certificate, which the secret scanner would flag.)
       - name: Scan the images for HIGH/CRITICAL vulnerabilities (Trivy)
         run: |
           for image in hustlehub-backend hustlehub-frontend; do

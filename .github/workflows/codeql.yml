@@ -24,16 +24,16 @@ jobs:
       actions: read
     steps:
       - name: Check out the code
-        uses: actions/checkout@v4
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
 
       - name: Initialise CodeQL
-        uses: github/codeql-action/init@v3
+        uses: github/codeql-action/init@4dd1439054423ad07501db44cf2fd84746f8ca8e # v3.28.1
         with:
           languages: javascript-typescript
           build-mode: none
           queries: security-extended
 
       - name: Run the analysis
-        uses: github/codeql-action/analyze@v3
+        uses: github/codeql-action/analyze@4dd1439054423ad07501db44cf2fd84746f8ca8e # v3.28.1
         with:
           category: /language:javascript-typescript
