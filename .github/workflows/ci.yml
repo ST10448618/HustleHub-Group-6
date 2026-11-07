@@ -39,7 +39,7 @@ jobs:
           cache-dependency-path: backend/package-lock.json
 
       - name: Cache the MongoDB test binary
-        uses: actions/cache@v4
+        uses: actions/cache@v6
         with:
           path: .mongodb-binaries
           key: mongodb-memory-server-${{ runner.os }}-${{ hashFiles('backend/package-lock.json') }}
