@@ -1,0 +1,15 @@
+title = "HustleHub+ Gitleaks configuration"
+
+[extend]
+useDefault = true
+
+[allowlist]
+description = "Placeholder and test-only credentials that are documented as non-secret"
+paths = [
+  '''postman/.*\.json''',
+  '''docker-compose\.yml''',
+  '''(^|/)\.env\.example$''',
+  '''backend/tests/.*''',
+  '''frontend/src/__tests__/.*''',
+  '''frontend/src/test/.*'''
+]

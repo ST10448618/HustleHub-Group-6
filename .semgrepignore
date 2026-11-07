@@ -1,0 +1,7 @@
+node_modules/
+dist/
+coverage/
+postman/
+backend/tests/
+frontend/src/__tests__/
+frontend/src/test/

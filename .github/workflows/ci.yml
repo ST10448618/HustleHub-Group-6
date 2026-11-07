@@ -1,0 +1,273 @@
+name: CI
+
+on:
+  push:
+    branches: ['**']
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+# A newer push to the same branch cancels the older run still in progress.
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  NODE_VERSION: '22'
+
+jobs:
+  backend:
+    name: Backend - install and test
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    defaults:
+      run:
+        working-directory: backend
+    env:
+      # The tests download a MongoDB binary once; cache it between runs.
+      MONGOMS_DOWNLOAD_DIR: ${{ github.workspace }}/.mongodb-binaries
+    steps:
+      - name: Check out the code
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+          cache-dependency-path: backend/package-lock.json
+
+      - name: Cache the MongoDB test binary
+        uses: actions/cache@v4
+        with:
+          path: .mongodb-binaries
+          key: mongodb-memory-server-${{ runner.os }}-${{ hashFiles('backend/package-lock.json') }}
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Generate a throwaway JWT secret for the test run
+        run: echo "JWT_SECRET=$(openssl rand -hex 32)" >> "$GITHUB_ENV"
+
+      - name: Run backend tests (with coverage)
+        run: npm test -- --ci
+
+      - name: Upload coverage report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: backend-coverage
+          path: backend/coverage
+          retention-days: 14
+          if-no-files-found: ignore
+
+  frontend:
+    name: Frontend - install, lint, test, build
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    defaults:
+      run:
+        working-directory: frontend
+    steps:
+      - name: Check out the code
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Run frontend tests
+        run: npm test
+
+      - name: Build the production bundle
+        run: npm run build
+        env:
+          VITE_API_BASE_URL: https://localhost:5000/api/v1
+
+      - name: Upload the build output
+        uses: actions/upload-artifact@v4
+        with:
+          name: frontend-dist
+          path: frontend/dist
+          retention-days: 7
+
+  dependency-audit:
+    name: Security - dependency audit (${{ matrix.app }})
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    strategy:
+      fail-fast: false
+      matrix:
+        app: [backend, frontend]
+    defaults:
+      run:
+        working-directory: ${{ matrix.app }}
+    steps:
+      - name: Check out the code
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+      # Gate: fail on HIGH or CRITICAL vulnerabilities in packages that
+      # ship to production. (Reads the lockfile; no install needed.)
+      - name: Fail on high/critical production vulnerabilities
+        run: npm audit --omit=dev --audit-level=high
+
+      # Visibility only: the full report including dev tooling.
+      - name: Full report (informational)
+        continue-on-error: true
+        run: npm audit
+
+  secret-scan:
+    name: Security - secret scan (Gitleaks)
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Check out the full history
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Scan the repository for secrets
+        run: |
+          docker run --rm --user "$(id -u):$(id -g)" -v "$PWD:/repo" \
+            ghcr.io/gitleaks/gitleaks:latest detect \
+            --source /repo --config /repo/.gitleaks.toml \
+            --redact --verbose --no-banner
+
+  static-analysis:
+    name: Static analysis - Semgrep
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    container:
+      image: semgrep/semgrep:latest
+    steps:
+      - name: Check out the code
+        uses: actions/checkout@v4
+
+      # --error makes the job fail when a WARNING or ERROR finding exists.
+      # Findings are printed in the log and saved as SARIF.
+      - name: Run Semgrep
+        run: >
+          semgrep scan
+          --config p/javascript
+          --config p/nodejs
+          --config p/owasp-top-ten
+          --severity ERROR
+          --severity WARNING
+          --error
+          --metrics off
+          --sarif-output semgrep-results.sarif
+          .
+
+      - name: Upload the analysis results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: semgrep-results
+          path: semgrep-results.sarif
+          retention-days: 30
+          if-no-files-found: ignore
+
+  docker-stack:
+    name: Docker - build stack, API tests, image scan
+    needs: [backend, frontend]
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Check out the code
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js (for Newman)
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+          cache-dependency-path: backend/package-lock.json
+
+      - name: Create the stack configuration with throwaway secrets
+        run: |
+          {
+            echo "MONGO_ROOT_USER=ci"
+            echo "MONGO_ROOT_PASSWORD=$(openssl rand -hex 16)"
+            echo "JWT_SECRET=$(openssl rand -hex 32)"
+            echo "CLIENT_ORIGIN=http://localhost:3000"
+            echo "VITE_API_BASE_URL=https://localhost:5000/api/v1"
+            echo "API_ORIGIN=https://localhost:5000"
+            echo "LOG_LEVEL=warn"
+          } > .env
+
+      - name: Build the backend and frontend images
+        run: docker compose build
+
+      - name: Start the stack and wait until every service is healthy
+        run: docker compose up -d --wait --wait-timeout 240
+
+      - name: Show the running containers
+        run: docker compose ps
+
+      - name: Create the admin account used by the API tests
+        run: docker compose exec -T backend node src/scripts/createAdmin.js
+
+      - name: Backend container runs as a non-root user
+        run: docker compose exec -T backend whoami | grep -qx node
+
+      - name: API answers over HTTPS
+        run: curl -fsk https://localhost:5000/health
+
+      - name: Frontend serves the strict security headers
+        run: |
+          headers="$(curl -sI http://localhost:3000)"
+          echo "$headers"
+          echo "$headers" | grep -qi '^content-security-policy:'
+          echo "$headers" | grep -qi '^x-frame-options: DENY'
+          echo "$headers" | grep -qi '^x-content-type-options: nosniff'
+
+      - name: Install Newman
+        working-directory: backend
+        run: npm ci
+
+      # Exits non-zero if ANY request or assertion fails, failing the pipeline.
+      - name: API endpoint tests against the running containers (Newman)
+        working-directory: backend
+        run: npm run test:newman
+
+      - name: Upload the Newman report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: newman-report
+          path: postman/newman-report.json
+          retention-days: 14
+          if-no-files-found: ignore
+
+      - name: Scan the images for HIGH/CRITICAL vulnerabilities (Trivy)
+        run: |
+          for image in hustlehub-backend hustlehub-frontend; do
+            echo "=== Scanning $image ==="
+            docker run --rm -v /var/run/docker.sock:/var/run/docker.sock \
+              aquasec/trivy:latest image \
+              --scanners vuln --severity HIGH,CRITICAL --ignore-unfixed \
+              --exit-code 1 --no-progress "$image"
+          done
+
+      - name: Container logs (only when something failed)
+        if: failure()
+        run: docker compose logs --no-color
+
+      - name: Tear the stack down
+        if: always()
+        run: docker compose down -v
