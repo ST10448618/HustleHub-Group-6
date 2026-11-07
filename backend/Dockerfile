@@ -1,6 +1,7 @@
 FROM node:22-bookworm-slim AS deps
 WORKDIR /app
 COPY package*.json ./
+
 RUN npm ci --omit=dev
 
 FROM node:22-bookworm-slim AS certs
@@ -16,6 +17,16 @@ RUN openssl req -x509 -newkey rsa:2048 -nodes \
 FROM node:22-bookworm-slim AS runtime
 ENV NODE_ENV=production
 WORKDIR /app
+
+RUN rm -rf \
+      /usr/local/lib/node_modules/npm \
+      /usr/local/lib/node_modules/corepack \
+      /usr/local/bin/npm \
+      /usr/local/bin/npx \
+      /usr/local/bin/corepack \
+      /usr/local/bin/yarn \
+      /usr/local/bin/yarnpkg \
+      /opt/yarn-*
 
 COPY --from=deps /app/node_modules ./node_modules
 COPY --chown=node:node package*.json server.js ./

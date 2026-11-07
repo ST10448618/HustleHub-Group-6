@@ -273,13 +273,15 @@ jobs:
       # self-signed development certificate, which the secret scanner would flag.)
       - name: Scan the images for HIGH/CRITICAL vulnerabilities (Trivy)
         run: |
+          status=0
           for image in hustlehub-backend hustlehub-frontend; do
             echo "=== Scanning $image ==="
             docker run --rm -v /var/run/docker.sock:/var/run/docker.sock \
               aquasec/trivy:latest image \
               --scanners vuln --severity HIGH,CRITICAL --ignore-unfixed \
-              --exit-code 1 --no-progress "$image"
+              --exit-code 1 --no-progress "$image" || status=1
           done
+          exit $status
 
       - name: Container logs (only when something failed)
         if: failure()
