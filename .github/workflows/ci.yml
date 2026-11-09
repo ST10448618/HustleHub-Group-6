@@ -159,7 +159,6 @@ jobs:
             ghcr.io/gitleaks/gitleaks:latest detect \
             --source /repo --config /repo/.gitleaks.toml \
             --redact --verbose --no-banner
-
   # ---------------------------------------------------------------------------
   # Static analysis: SAST with Semgrep (OWASP Top 10, Node.js, JavaScript rules)
   # ---------------------------------------------------------------------------
@@ -187,7 +186,6 @@ jobs:
           --metrics off
           --sarif-output semgrep-results.sarif
           .
-
       - name: Upload the analysis results
         if: always()
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
@@ -224,7 +222,6 @@ jobs:
             echo "API_ORIGIN=https://localhost:5000"
             echo "LOG_LEVEL=warn"
           } > .env
-
       - name: Build the backend and frontend images
         run: docker compose build
 
@@ -250,7 +247,6 @@ jobs:
           for expected in "content-security-policy:" "x-frame-options: deny" "x-content-type-options: nosniff" "referrer-policy:" "permissions-policy:"; do
             echo "$headers" | grep -qi "^$expected" || { echo "MISSING SECURITY HEADER: $expected"; exit 1; }
           done
-
       - name: Install Newman
         working-directory: backend
         run: npm ci
@@ -282,7 +278,6 @@ jobs:
               --exit-code 1 --no-progress "$image" || status=1
           done
           exit $status
-
       - name: Container logs (only when something failed)
         if: failure()
         run: docker compose logs --no-color
